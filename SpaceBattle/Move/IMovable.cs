@@ -9,14 +9,7 @@ namespace SpaceBattle.Move
 {
     public interface IMovable
     {
-        public System.Numerics.Vector Position
-        {
-            get;
-            set;
-        }
-        public System.Numerics.Vector Velosity
-        {
-            get;
-        }
+        Vector Position { get; set; }
+        Vector Velocity { get; }
     }
 }

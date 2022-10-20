@@ -10,6 +10,5 @@ namespace SpaceBattle.Move
     public interface ICommand
     {
         public void Execute();
-
     }
 }

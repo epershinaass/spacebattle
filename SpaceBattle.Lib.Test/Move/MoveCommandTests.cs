@@ -1,24 +1,47 @@
-using SpaceBattle.Move;
-using System.Windows.Input;
+namespace SpaceBattle.Lib.Test;
 
-namespace SpaceBattle.Lib.Test.Move
-{
     public class MoveCommandTests
     {
-        [Fact]
+       [Fact]
         public void TestPositiveMove()
         {
             Mock<IMovable> movable = new Mock<IMovable>();
-            movable.SetupProperty<Vector>(m => m.Position, new Vector(0, 0);
-            movable.SetupGet<Vector>(movable => m.Velocity).Returns(new Vector(1, 1));
-            System.Windows.Input.ICommand mc = new MoveCommand(movable.Object);
+            movable.SetupProperty(m => m.Position, new Vector(0, 0));
+            movable.SetupGet<Vector>(m => m.Velocity).Returns(new Vector(1, 1));
+            MoveCommand mc = new MoveCommand(movable.Object);
             mc.Execute();
-            Assert.Equal(new Vector(), movable.Object.Position);
+            Assert.Equal(new Vector(1, 1), movable.Object.Position);
+        }
 
+        [Fact]
+        public void TestGetVelocity()
+        {
+            Mock<IMovable> movable = new Mock<IMovable>();
+            movable.SetupProperty(m => m.Position, new Vector(0, 0));
+            movable.SetupGet<Vector>(m => m.Velocity).Throws<ArgumentException>();
+            MoveCommand mc = new MoveCommand(movable.Object);
+            Assert.Throws<ArgumentException>(() => mc.Execute());
+        }
 
+        [Fact]
+        public void TestGetPosition()
+        {
+            Mock<IMovable> movable = new Mock<IMovable>();
+            movable.SetupProperty(m => m.Position, new Vector(0, 0));
+            movable.SetupGet<Vector>(m => m.Velocity).Returns(new Vector(1, 1));
+            movable.SetupGet<Vector>(m => m.Velocity).Throws<ArgumentException>();
+            MoveCommand mc = new MoveCommand(movable.Object);
+            Assert.Throws<ArgumentException>(() => mc.Execute());
+        }
 
-
-            Assert.
+        [Fact]
+        public void TestSetPosition()
+        {
+            Mock<IMovable> movable = new Mock<IMovable>();
+            movable.SetupProperty(m => m.Position, new Vector(0, 0));
+            movable.SetupGet<Vector>(m => m.Velocity).Returns(new Vector(1, 1));
+            movable.SetupSet<Vector>(m => m.Position = It.IsAny<Vector>()).Throws<ArgumentException>();
+            MoveCommand mc = new MoveCommand(movable.Object);
+            Assert.Throws<ArgumentException>(() => mc.Execute());
         }
     }
-}

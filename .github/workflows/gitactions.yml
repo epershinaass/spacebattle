@@ -26,5 +26,3 @@ jobs:
         uses: codecov/codecov-action@v3
         with: 
           files: SpaceBattle.Lib.Test/coverage/coverage.opencover.xml   
-      - name: Create Test Coverage Badge
-        uses: simon-k/dotnet-code-coverage-badge@v1.0.0

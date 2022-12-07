@@ -1,15 +1,7 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Numerics;
-using System.Text;
-using System.Threading.Tasks;
+﻿namespace SpaceBattle;
 
-namespace SpaceBattle.Move
+public interface IMovable
 {
-    public interface IMovable
-    {
-        Vector Position { get; set; }
-        Vector Velocity { get; }
-    }
+    public Vector Position { get; set; }
+    public Vector Velocity { get; }
 }

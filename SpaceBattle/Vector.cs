@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Data;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
+﻿
 namespace SpaceBattle
 {
     public class Vector
@@ -45,6 +39,11 @@ namespace SpaceBattle
             return Enumerable.SequenceEqual(first.array, second.array);
         }
 
+        public override bool Equals(Object? obj)
+        {
+            return obj is Vector v && array.SequenceEqual(v.array);
+        }
+
         public int GetNComponent(int n)
         {
             int? nComponent = array.ElementAtOrDefault(n - 1);
@@ -56,3 +55,6 @@ namespace SpaceBattle
         }
     }
 }
+
+
+

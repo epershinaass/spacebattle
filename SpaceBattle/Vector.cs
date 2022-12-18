@@ -14,6 +14,11 @@ namespace SpaceBattle
             return first.array.Length == second.array.Length;
         }
 
+        public override string ToString() 
+        {
+            return $"({string.Join(", ", this.array)})";
+        }
+        
         public static Vector Sum (Vector first, Vector second)
         {
             if (!IsSameSize(first, second))
@@ -32,11 +37,6 @@ namespace SpaceBattle
         public static Vector operator + (Vector first, Vector second)
         {
             return Sum(first, second);
-        }
-
-        public static bool AreEquals(Vector first, Vector second)
-        {
-            return Enumerable.SequenceEqual(first.array, second.array);
         }
 
         public override bool Equals(Object? obj)

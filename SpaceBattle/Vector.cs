@@ -53,6 +53,10 @@ namespace SpaceBattle
             }
             return nComponent.Value;
         }
+
+        public override int GetHashCode() =>
+            array.Aggregate(0, (total, next) => HashCode.Combine(total, next));
+        
     }
 }
 

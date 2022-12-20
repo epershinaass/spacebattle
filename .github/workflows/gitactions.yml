@@ -25,4 +25,7 @@ jobs:
       - name: Codecov
         uses: codecov/codecov-action@v3
         with: 
-          files: SpaceBattle.Lib.Test/coverage/coverage.opencover.xml   
+          files: SpaceBattle.Lib.Test/coverage/coverage.opencover.xml
+      - name: Coverage check
+        uses: devmasx/coverage-check-action@v1.2.0
+  

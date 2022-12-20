@@ -10,3 +10,15 @@ C:\Users\lizal\Desktop\Project1\SpaceBattle\obj\Debug\net6.0\SpaceBattle.dll
 C:\Users\lizal\Desktop\Project1\SpaceBattle\obj\Debug\net6.0\refint\SpaceBattle.dll
 C:\Users\lizal\Desktop\Project1\SpaceBattle\obj\Debug\net6.0\SpaceBattle.pdb
 C:\Users\lizal\Desktop\Project1\SpaceBattle\obj\Debug\net6.0\ref\SpaceBattle.dll
+C:\Users\Елизавета\Desktop\Project\SpaceBattle\bin\Debug\net6.0\SpaceBattle.deps.json
+C:\Users\Елизавета\Desktop\Project\SpaceBattle\bin\Debug\net6.0\SpaceBattle.dll
+C:\Users\Елизавета\Desktop\Project\SpaceBattle\bin\Debug\net6.0\SpaceBattle.pdb
+C:\Users\Елизавета\Desktop\Project\SpaceBattle\obj\Debug\net6.0\SpaceBattle.csproj.AssemblyReference.cache
+C:\Users\Елизавета\Desktop\Project\SpaceBattle\obj\Debug\net6.0\SpaceBattle.GeneratedMSBuildEditorConfig.editorconfig
+C:\Users\Елизавета\Desktop\Project\SpaceBattle\obj\Debug\net6.0\SpaceBattle.AssemblyInfoInputs.cache
+C:\Users\Елизавета\Desktop\Project\SpaceBattle\obj\Debug\net6.0\SpaceBattle.AssemblyInfo.cs
+C:\Users\Елизавета\Desktop\Project\SpaceBattle\obj\Debug\net6.0\SpaceBattle.csproj.CoreCompileInputs.cache
+C:\Users\Елизавета\Desktop\Project\SpaceBattle\obj\Debug\net6.0\SpaceBattle.dll
+C:\Users\Елизавета\Desktop\Project\SpaceBattle\obj\Debug\net6.0\refint\SpaceBattle.dll
+C:\Users\Елизавета\Desktop\Project\SpaceBattle\obj\Debug\net6.0\SpaceBattle.pdb
+C:\Users\Елизавета\Desktop\Project\SpaceBattle\obj\Debug\net6.0\ref\SpaceBattle.dll

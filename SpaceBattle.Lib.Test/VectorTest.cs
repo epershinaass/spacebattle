@@ -33,6 +33,7 @@ namespace SpaceBattle.Lib.Test;
             Assert.False(a == b);
         }
 
+         [Fact]
         public void VectorEqualTestPositive()
         {
             Vector a = new Vector(5, 5);
@@ -40,7 +41,13 @@ namespace SpaceBattle.Lib.Test;
             Assert.True(a.Equals(b));
         }
 
+         [Fact]
+      public void VectorGetHashCodeTest()
+      {
+        Vector a = new Vector(1, 2);
+        Vector b = new Vector(1, 2);
+        Assert.Equal(a.GetHashCode(), b.GetHashCode());
+      }
 
-
-    }
+      }
     

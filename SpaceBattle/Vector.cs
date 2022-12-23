@@ -3,13 +3,13 @@ namespace SpaceBattle
 {
     public class Vector
     {
-        public int[] array;
+        private int[] array;
         public Vector(params int[] array)
         {
             this.array = array; 
         }
 
-        private static bool IsSameSize(Vector first, Vector second)
+        public static bool IsSameSize(Vector first, Vector second)
         {
             return first.array.Length == second.array.Length;
         }

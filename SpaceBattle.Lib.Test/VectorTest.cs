@@ -99,5 +99,15 @@ namespace SpaceBattle.Lib.Test;
         Assert.Equal(a.GetHashCode(), b.GetHashCode());
       }
 
+       [Fact]
+        public void VectorSameSizeTest()
+        {
+            Vector a = new Vector(5, 5);
+            Vector b = new Vector(6, 11);
+            Vector c = new Vector(6, 3, 4);
+            Assert.True(Vector.IsSameSize(a, b));
+            Assert.False(Vector.IsSameSize(a, c));
+        }
+
       }
     

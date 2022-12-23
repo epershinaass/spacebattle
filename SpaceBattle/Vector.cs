@@ -6,7 +6,7 @@ namespace SpaceBattle
         public int[] array;
         public Vector(params int[] array)
         {
-            this.array = array;   
+            this.array = array; 
         }
 
         private static bool IsSameSize(Vector first, Vector second)
@@ -14,17 +14,11 @@ namespace SpaceBattle
             return first.array.Length == second.array.Length;
         }
 
-        public override string ToString() 
-        {
-            return $"({string.Join(", ", this.array)})";
-        }
-        
-        public static Vector Sum (Vector first, Vector second)
-        {
-            if (!IsSameSize(first, second))
-            {
-                throw new ArgumentException("Разные размеры у векторов! Мы как их складывать-то будем???????");
-            } else {
+
+        public static Vector operator + (Vector first, Vector second){
+                if (first.array.Length != second.array.Length)
+                throw new System.ArgumentException();
+            else{
                 int[] arr = new int[first.array.Length];
                 for (int i = 0; i < first.array.Length; i++)
                 {
@@ -34,9 +28,27 @@ namespace SpaceBattle
             }
         }
 
-        public static Vector operator + (Vector first, Vector second)
-        {
-            return Sum(first, second);
+        public static Vector operator - (Vector first, Vector second){
+        if (first.array.Length != second.array.Length)
+            throw new System.ArgumentException();
+        else{
+            int[] sum = new int[first.array.Length];
+            for (int i = 0; i < first.array.Length; i++)
+                sum[i] = first.array[i] - second.array[i];
+            return new Vector(sum);
+        }
+        }
+
+        public static bool operator == (Vector first, Vector second){
+        if (first.array.Length != second.array.Length)
+            return false;
+        bool f = true;
+        for (int i = 0; i < first.array.Length; i++)
+            if (first.array[i] != second.array[i]) f = false;
+        return f;
+        }
+        public static bool operator != (Vector first, Vector second){
+            return !(first==second);
         }
 
         public override bool Equals(Object? obj)
@@ -44,19 +56,14 @@ namespace SpaceBattle
             return obj is Vector v && array.SequenceEqual(v.array);
         }
 
-        public int GetNComponent(int n)
-        {
-            int? nComponent = array.ElementAtOrDefault(n - 1);
-            if (nComponent == null)
-            {
-                throw new ArgumentException("Вектор не содержит указанной компоненты");
-            }
-            return nComponent.Value;
+        public override int GetHashCode() {
+        HashCode hash = new();
+        foreach(int i in array){
+            hash.Add(array[i]);
         }
+        return hash.ToHashCode();
 
-        public override int GetHashCode() =>
-            array.Aggregate(0, (total, next) => HashCode.Combine(total, next));
-        
+    }
     }
 }
 

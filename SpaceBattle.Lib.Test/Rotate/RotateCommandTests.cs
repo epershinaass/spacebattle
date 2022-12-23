@@ -8,7 +8,7 @@ public class RotateTest
     {
         Mock<IRotatable> rotatableMock = new Mock<IRotatable>();
         rotatableMock.SetupProperty<Angle>(m => m.Angle, new Angle (45, 1));
-        rotatableMock.SetupGet<Angle>(m => m.AngularVelocity).Returns(new Angle (90, 1));
+        rotatableMock.SetupGet<Angle>(m => m.AngleVelocity).Returns(new Angle (90, 1));
 
 
         ICommand rotateCommand = new RotateCommand(rotatableMock.Object);
@@ -21,7 +21,7 @@ public class RotateTest
     {
         Mock<IRotatable> rotatableMock = new Mock<IRotatable>();
         rotatableMock.SetupProperty(m => m.Angle, new Angle(45, 1));
-        rotatableMock.SetupGet<Angle>(m => m.AngularVelocity).Returns(new Angle (90,1));
+        rotatableMock.SetupGet<Angle>(m => m.AngleVelocity).Returns(new Angle (90,1));
         rotatableMock.SetupSet<Angle>(m => m.Angle = It.IsAny<Angle>()).Throws<Exception>();
         ICommand rotateCommand = new RotateCommand(rotatableMock.Object);
 
@@ -35,7 +35,7 @@ public class RotateTest
     {
         Mock<IRotatable> rotatableMock = new Mock<IRotatable>();
         
-        rotatableMock.SetupGet<Angle>(m => m.AngularVelocity).Returns(new Angle (45, 1));
+        rotatableMock.SetupGet<Angle>(m => m.AngleVelocity).Returns(new Angle (45, 1));
         rotatableMock.SetupSet<Angle>(m => m.Angle = new Angle (90, 1));
         rotatableMock.SetupGet<Angle>(m => m.Angle).Throws<Exception>();
         ICommand rotateCommand = new RotateCommand(rotatableMock.Object);
@@ -48,7 +48,7 @@ public class RotateTest
     {
         Mock<IRotatable> rotatableMock = new Mock<IRotatable>();
         rotatableMock.SetupProperty<Angle>(m => m.Angle, new Angle (90, 1));
-        rotatableMock.SetupGet<Angle>(m => m.AngularVelocity).Throws<Exception>();
+        rotatableMock.SetupGet<Angle>(m => m.AngleVelocity).Throws<Exception>();
         ICommand rotateCommand = new RotateCommand(rotatableMock.Object);
         Assert.Throws<Exception>(() => rotateCommand.Execute());
     }

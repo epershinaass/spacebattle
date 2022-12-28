@@ -1,5 +1,4 @@
-﻿
-namespace SpaceBattle
+﻿namespace SpaceBattle
 {
     public class Vector
     {
@@ -74,6 +73,3 @@ namespace SpaceBattle
         }
     }
 }
-
-
-

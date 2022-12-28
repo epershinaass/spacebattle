@@ -412,3 +412,4 @@ coverage
 *.copycomplete
 .SpaceBattle.Lib.Test/bin
 .SpaceBattle.Lib.Test/coverage
+*.xml

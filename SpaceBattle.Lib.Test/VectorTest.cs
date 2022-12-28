@@ -89,9 +89,7 @@ public class VectorTest
         Vector a = new Vector(5, 5);
         Vector b = new Vector(5, 5);
         Assert.True(a.Equals(b));
-        // я умная, проверяю is с другим типом
         Assert.False(a.Equals(new List<int>()));
-        // а еще я умная и проверяю с указателем на пустой участок :)
         Assert.False(b.Equals(null));
     }
 

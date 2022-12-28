@@ -62,7 +62,5 @@ public class AngleTest
         Angle a = new Angle(45, 1);
         Assert.False(a.Equals("String"));
     }
-
-
-
 }
+

@@ -1,6 +1,6 @@
 ﻿namespace SpaceBattle.Lib;
 
-public class RotateCommand: ICommand
+public class RotateCommand : ICommand
 {
     private IRotatable rotatable;
     public RotateCommand(IRotatable rotatable)

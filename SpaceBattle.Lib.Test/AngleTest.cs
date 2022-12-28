@@ -5,7 +5,7 @@ public class AngleTest
     [Fact]
     public void DivizionByZeroException()
     {
-        Assert.Throws<Exception>(()=> new Angle(99,0)); 
+        Assert.Throws<Exception>(() => new Angle(99, 0));
     }
 
     [Fact]
@@ -13,10 +13,10 @@ public class AngleTest
     {
         Angle a = new Angle(45, 1);
         Angle b = new Angle(90, 2);
-        Angle c  = a + b;
-        Assert.Equal(new Angle(90,1),c);
+        Angle c = a + b;
+        Assert.Equal(new Angle(90, 1), c);
     }
-    
+
     [Fact]
     public void AngleSumTestNegative()
     {
@@ -39,7 +39,7 @@ public class AngleTest
         Angle b = new Angle(90, 2);
         Assert.True(a.GetHashCode() == b.GetHashCode());
     }
-    
+
     [Fact]
     public void AngleTestComparingHashCodeNegative()
     {

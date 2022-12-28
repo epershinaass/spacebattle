@@ -1,6 +1,6 @@
 ﻿namespace SpaceBattle;
 
-public class MoveCommand: ICommand
+public class MoveCommand : ICommand
 {
     private IMovable movable;
     public MoveCommand(IMovable movable)

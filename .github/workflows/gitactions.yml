@@ -1,6 +1,15 @@
 name: dotnet package
  
-on: [push]
+on: 
+  workflow_dispatch:
+    inputs:
+      reason:
+        description: "The reason for running the workflow"
+        required: true
+        default: "Manual run"
+
+  pull_request:
+  branches: [ "main" ]
  
 jobs:
   build:
@@ -26,5 +35,6 @@ jobs:
         uses: codecov/codecov-action@v3
         with: 
           files: SpaceBattle.Lib.Test/coverage/coverage.opencover.xml
+          
 
   

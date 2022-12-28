@@ -390,6 +390,13 @@ FodyWeavers.xsd
 # Local History for Visual Studio Code
 .history/
 
+#lab2
+IChangeVelocity.cs
+IMoveCommandStartable.cs
+IUObject.cs
+StartMoveCommand.cs
+MovableAdapter.cs
+
 # Windows Installer files from build outputs
 *.cab
 *.msi
@@ -399,22 +406,9 @@ FodyWeavers.xsd
 *.vs
 .vs
 coverage
-
-
-# JetBrains Rider
-*.sln.iml
-Footer
-© 2022 GitHub, Inc.
-Footer navigation
-Terms
-Privacy
-Security
-Status
-Docs
-Contact GitHub
-Pricing
-API
-Training
-Blog
-About
-spacebattle/.gitignore at master · epershinaass/spacebattle
+*.dll
+*.pdb
+*.cache
+*.copycomplete
+.SpaceBattle.Lib.Test/bin
+.SpaceBattle.Lib.Test/coverage

@@ -2,11 +2,6 @@ name: dotnet package
  
 on: 
   workflow_dispatch:
-    inputs:
-      reason:
-        description: "The reason for running the workflow"
-        required: true
-        default: "Manual run"
 
   pull_request:
     branches: [ "main" ]

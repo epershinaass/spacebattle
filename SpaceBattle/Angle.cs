@@ -12,7 +12,7 @@ namespace SpaceBattle
                 throw new Exception();
             }
 
-            int nod = NOD(numerator, denominator);
+            int nod = GCD(numerator, denominator);
             this.Numerator = numerator / nod;
             this.Denominator = denominator / nod;
         }
@@ -32,7 +32,7 @@ namespace SpaceBattle
         {
             int num = a.Numerator * b.Denominator + b.Numerator * a.Denominator;
             int den = a.Denominator * b.Denominator;
-            int nod = NOD(num, den);
+            int nod = GCD(num, den);
             return new Angle(num / nod, den / nod);
         }
 

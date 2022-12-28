@@ -26,13 +26,6 @@ public class AngleTest
     }
 
     [Fact]
-    public void AngleNODTestPositive()
-    {
-        int nod = Angle.NOD(4, 5);
-        Assert.Equal(1, nod);
-    }
-
-    [Fact]
     public void AngleTestComparingHashCodePositive()
     {
         Angle a = new Angle(45, 1);

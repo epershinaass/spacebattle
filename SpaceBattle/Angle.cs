@@ -16,7 +16,7 @@ namespace SpaceBattle
             this.Numerator = numerator / nod;
             this.Denominator = denominator / nod;
         }
-        public static int NOD(int x, int y)
+        private static int GCD(int x, int y)
         {
             while (x != y)
             {

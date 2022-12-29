@@ -6,7 +6,8 @@ namespace SpaceBattle.Lib.Test;
 
 public class StartMoveCommandTest 
 {
-    public TestStartMoveCommand()
+    [Fact]
+    public void TestStartMoveCommand()
     {
         new InitScopeBasedIoCImplementationCommand().Execute();
         IoC.Resolve<Hwdtech.ICommand>("Scopes.Current.Set",  IoC.Resolve<object>("Scopes.New", IoC.Resolve<object>("Scopes.Root"))).Execute();
@@ -31,7 +32,7 @@ public class StartMoveCommandTest
     [Fact]
     public void PositiveTestStartMoveCommand()
     {
-        var move_startable = new Mock<IMoveStartable>();
+        var move_startable = new Mock<IMoveCommandStartable>();
         move_startable.SetupGet(c => c.Obj).Returns(new Mock<IUObject>().Object).Verifiable();
         move_startable.SetupGet(c => c.InitialVelocity).Returns(new Vector(It.IsAny<int>(), It.IsAny<int>())).Verifiable();
             
@@ -43,7 +44,7 @@ public class StartMoveCommandTest
         [Fact]
         public void TestImpossibleGetObject()
         {
-            var move_startable = new Mock<IMoveStartable>();
+            var move_startable = new Mock<IMoveCommandStartable>();
             move_startable.SetupGet(c => c.Obj).Throws<Exception>().Verifiable();
             move_startable.SetupGet(c => c.InitialVelocity).Returns(new Vector(It.IsAny<int>(), It.IsAny<int>())).Verifiable();
 
@@ -55,7 +56,7 @@ public class StartMoveCommandTest
         [Fact]
         public void TestImpossibleGetVelocity()
         {
-            var move_startable = new Mock<IMoveStartable>();
+            var move_startable = new Mock<IMoveCommandStartable>();
             move_startable.SetupGet(a => a.Obj).Returns(new Mock<IUObject>().Object).Verifiable();
             move_startable.SetupGet(a => a.InitialVelocity).Throws<Exception>().Verifiable();
 

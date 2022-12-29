@@ -9,8 +9,7 @@ namespace SpaceBattle
     public interface IMoveCommandStartable
     {
         // получить приказ (приказ - IUObject)
-       IUObject object { get; }
-       IDictionary<string, object> Properties { get; }
-       IEnumerable<ICommand> Queue { get; }
+       IUObject Obj { get; }
+       Vector InitialVelocity { get; }
     }
 }

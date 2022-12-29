@@ -1,5 +1,6 @@
-using SpaceBattle.Adapters;
-using SpaceBattle.Move;
+using SpaceBattle;
+using Hwdtech;
+using Hwdtech.Ioc;
 
 namespace SpaceBattle
 {
@@ -7,32 +8,23 @@ namespace SpaceBattle
     {
 
         // объект, который будем двигать
-        private IMovable movable;
+        private IMoveCommandStartable obj;
+        public StartMoveCommand(IMoveCommandStartable obj) 
+        {
+            this.obj = obj;
+        }
         // очередь команд, которую извлечем из приказа
         private Queue<ICommand> queue;
 
-        public StartMoveCommand(IMoveCommandStartable startable)
-        {
-            // получаем объект, который нужно двигать (по ключу object в универсальном объекте, который находится в приказе)
-            // сам приказ - член интерфейса IMoveCommandStartable
-            // преобразуем полученный объект типа Object в объект интерфейса IChangeVelocity (через адаптер)
-            // это работает, потому что MovableAdapter реализует интерфейс IChangeVelocity
-            this.movable = new MovableAdapter((IUObject)startable.Order.GetProperty("object"));
-            // аналогично получаем очередь команд, воспринимаем ее как объект по ключу queue
-            this.queue = (Queue<ICommand>)startable.Order.GetProperty("queue");
-            // пользуемся возможностью интерфейса IChangeVelocity и соответствующим адаптером, чтобы изменить скорость
-            // при этом, саму скорость также "достаем" из приказа (по ключу velocity)
-            this.movable.Velocity = (Vector)startable.Order.GetProperty("velocity");
-        }
-
+        
         public void Execute()
         {
+            IoC.Resolve<ICommand>("SpaceBattle.SetupProperty", obj.Obj, "Velocity", obj.InitialVelocity).Execute();
             // создание MoveCommand
-            var moveCommand = new MoveCommand(movable);
-            // вызов MoveCommand
-            moveCommand.Execute();
-            // добавляем команду в очередь
-            this.queue.Enqueue(moveCommand);
+            var moveCommand = IoC.Resolve<ICommand>("SpaceBattle.Move", obj.Obj);
+            IoC.Resolve<ICommand>("SpaceBattle.SetupCommand", obj.Obj, "Move", moveCommand).Execute();
+            var createQueue = IoC.Resolve<Queue<ICommand>>("SpaceBattle.Queue");
+            IoC.Resolve<ICommand>("SpaceBattle.QueuePush", createQueue, moveCommand).Execute();
         }
     }
 }

@@ -9,14 +9,14 @@ namespace SpaceBattle
 
         // объект, который будем двигать
         private IMoveCommandStartable obj;
-        public StartMoveCommand(IMoveCommandStartable obj) 
+        public StartMoveCommand(IMoveCommandStartable obj)
         {
             this.obj = obj;
         }
         // очередь команд, которую извлечем из приказа
         private Queue<ICommand> queue;
 
-        
+
         public void Execute()
         {
             IoC.Resolve<ICommand>("SpaceBattle.SetupProperty", obj.Obj, "Velocity", obj.InitialVelocity).Execute();

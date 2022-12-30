@@ -12,11 +12,11 @@ namespace SpaceBattle
                 throw new Exception();
             }
 
-            int nod = GCD(numerator, denominator);
+            int nod = NOD(numerator, denominator);
             this.Numerator = numerator / nod;
             this.Denominator = denominator / nod;
         }
-        private static int GCD(int x, int y)
+        public static int NOD(int x, int y)
         {
             while (x != y)
             {
@@ -32,7 +32,7 @@ namespace SpaceBattle
         {
             int num = a.Numerator * b.Denominator + b.Numerator * a.Denominator;
             int den = a.Denominator * b.Denominator;
-            int nod = GCD(num, den);
+            int nod = NOD(num, den);
             return new Angle(num / nod, den / nod);
         }
 

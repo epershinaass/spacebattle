@@ -20,7 +20,7 @@ public class AngleTest
     [Fact]
     public void AngleSumTestNegative()
     {
-        Angle a = new Angle(45, 1);
+        Angle a = new Angle(45, 90);
         Angle b = new Angle(90, 2);
         Assert.False(a + b == new Angle(90, 2));
     }

@@ -41,28 +41,28 @@ public class StartMoveCommandTest
         move_startable.Verify();
     }
 
-        [Fact]
-        public void TestImpossibleGetObject()
-        {
-            var move_startable = new Mock<IMoveCommandStartable>();
-            move_startable.SetupGet(c => c.Obj).Throws<Exception>().Verifiable();
-            move_startable.SetupGet(c => c.InitialVelocity).Returns(new Vector(It.IsAny<int>(), It.IsAny<int>())).Verifiable();
+    [Fact]
+    public void TestImpossibleGetObject()
+    {
+        var move_startable = new Mock<IMoveCommandStartable>();
+        move_startable.SetupGet(c => c.Obj).Throws<Exception>().Verifiable();
+        move_startable.SetupGet(c => c.InitialVelocity).Returns(new Vector(It.IsAny<int>(), It.IsAny<int>())).Verifiable();
 
-            ICommand startMove = new StartMoveCommand(move_startable.Object);
+        ICommand startMove = new StartMoveCommand(move_startable.Object);
 
-            Assert.Throws<Exception>(() => startMove.Execute());
-        }
+        Assert.Throws<Exception>(() => startMove.Execute());
+    }
 
-        [Fact]
-        public void TestImpossibleGetVelocity()
-        {
-            var move_startable = new Mock<IMoveCommandStartable>();
-            move_startable.SetupGet(a => a.Obj).Returns(new Mock<IUObject>().Object).Verifiable();
-            move_startable.SetupGet(a => a.InitialVelocity).Throws<Exception>().Verifiable();
+    [Fact]
+    public void TestImpossibleGetVelocity()
+    {
+        var move_startable = new Mock<IMoveCommandStartable>();
+        move_startable.SetupGet(a => a.Obj).Returns(new Mock<IUObject>().Object).Verifiable();
+        move_startable.SetupGet(a => a.InitialVelocity).Throws<Exception>().Verifiable();
 
-            ICommand startMove = new StartMoveCommand(move_startable.Object);
+        ICommand startMove = new StartMoveCommand(move_startable.Object);
 
-            Assert.Throws<Exception>(() => startMove.Execute());
-        }
+        Assert.Throws<Exception>(() => startMove.Execute());
+    }
             
 }

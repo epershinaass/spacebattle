@@ -37,4 +37,22 @@ public class TestChekCollision
         getDecisionTreeStrategy.Verify();
     }
 
+     [Fact]
+    public void NoCollisionsFoundTest()
+    {
+        var obj1 = new Mock<IUObject>();
+        var obj2 = new Mock<IUObject>();
+
+        obj1.Setup(x => x.GetProperty("Velocity")).Returns(new Vector(It.IsAny<int>(), It.IsAny<int>()));
+        obj1.Setup(x => x.GetProperty("Position")).Returns(new Vector(It.IsAny<int>(), It.IsAny<int>()));
+        obj2.Setup(x => x.GetProperty("Velocity")).Returns(new Vector(It.IsAny<int>(), It.IsAny<int>()));
+        obj2.Setup(x => x.GetProperty("Position")).Returns(new Vector(It.IsAny<int>(), It.IsAny<int>()));
+
+        getDecisionTreeStrategy.Setup(c => c.ExecuteStrategy(It.IsAny<object[]>())).Returns(false).Verifiable();
+        CheckCollision collision = new CheckCollision(obj1.Object, obj2.Object);
+
+        collision.Execute();
+        getDecisionTreeStrategy.Verify();
+    }
+
 }

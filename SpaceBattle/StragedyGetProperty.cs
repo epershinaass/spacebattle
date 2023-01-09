@@ -9,3 +9,4 @@ public class StrategyGetProperty : IStrategy
         return obj.GetProperty(property);
     }
 }
+

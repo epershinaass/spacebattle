@@ -18,3 +18,4 @@ public class StrategyGetDifference : IStrategy
         return new List<Vector>(list);
     }
 }
+

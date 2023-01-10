@@ -20,3 +20,4 @@ public class MacroCommandStrategy: IStrategy
         return new MacroCommand(list_cmds);
     }
 }
+

@@ -1,4 +1,4 @@
-namespace SpaceBattle.Lib;
+namespace SpaceBattle;
 using Hwdtech;
 
 public class MacroCommandStrategy: IStrategy

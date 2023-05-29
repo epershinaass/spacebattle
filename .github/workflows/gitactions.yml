@@ -25,7 +25,7 @@ jobs:
       - name: Build
         run: dotnet build --no-restore /p:ContinuousIntegrationBuild=true
       - name: Test
-        run: dotnet test --no-build --verbosity d -p:CollectCoverage=true -p:CoverletOutput=./coverage/coverage.opencover.xml -p:CoverletOutputFormat=opencover
+        run: dotnet test —no-build —verbosity normal —collect:"XPlat Code Coverage" /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura
       - name: Codecov
         uses: codecov/codecov-action@v3
         with: 

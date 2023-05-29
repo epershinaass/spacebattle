@@ -25,10 +25,10 @@ jobs:
       - name: Build
         run: dotnet build --no-restore /p:ContinuousIntegrationBuild=true
       - name: Test
-        run: dotnet test --no-build --verbosity normal --collect:"XPlat Code Coverage" /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura
+        run: dotnet test —no-build —verbosity normal —collect:"XPlat Code Coverage"
       - name: Codecov
         uses: codecov/codecov-action@v3
         with: 
-          files: SpaceBattle.Lib.Test/coverage/coverage.cobertura.xml
+          files: SpaceBattle.Lib.Test/coverage/coverage.co.xml
 
   

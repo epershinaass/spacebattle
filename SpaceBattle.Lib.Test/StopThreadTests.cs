@@ -5,9 +5,9 @@ using Hwdtech.Ioc;
 
 namespace SpaceBattle.Lib.Test;
 
-public class HardStopTests
+public class StopThreadTests
 {
-    public HardStopTests()
+    public StopThreadTests()
     {
         new InitScopeBasedIoCImplementationCommand().Execute();
 
@@ -44,20 +44,6 @@ public class HardStopTests
             }
         ))).Execute();
 
-        IoC.Resolve<Hwdtech.ICommand>("IoC.Register", "Threading.HardStop", (object[] args) => 
-        {
-            Action task = new Action(() => {});
-            if (args.Length == 2)
-            {
-                task = (Action)args[1];
-            }
-            return new HardStopThreadCommand(
-            IoC.Resolve<Dictionary<int, (ServerThread, SenderAdapter)>>("Threading.ServerThreads")[(int)args[0]].Item1,
-            task,
-            IoC.Resolve<Dictionary<int, (ServerThread, SenderAdapter)>>("Threading.ServerThreads")[(int)args[0]].Item2);
-        }
-        ).Execute();
-
         IoC.Resolve<Hwdtech.ICommand>("IoC.Register", "Threading.GetThreadId", (object[] args) =>
         {
             var thread = (ServerThread)args[0];
@@ -68,22 +54,19 @@ public class HardStopTests
     }
 
     [Fact]
-    public void successfulHardStop()
+    public void successfulStop()
     {
         var objToMove = new Mock<IMovable>();
+        objToMove.SetupProperty(x => x.Position);
+        objToMove.SetupGet(x => x.Velocity).Returns(new Vector(-7, 3));
+        objToMove.Object.Position = new Vector(12, 5);
         var cmd = new MoveCommand(objToMove.Object);
 
         IoC.Resolve<ICommand>("Threading.CreateAndStartThread", 1).Execute();
-        var threadReceiver = IoC.Resolve<Dictionary<int, (ServerThread, SenderAdapter)>>("Threading.ServerThreads")[1].Item1.queue;
+        new StopThreadCommand(IoC.Resolve<Dictionary<int, (ServerThread, SenderAdapter)>>("Threading.ServerThreads")[1].Item1).Execute();
 
         IoC.Resolve<ICommand>("Threading.SendCommand", 1, cmd).Execute();
-        IoC.Resolve<ICommand>("Threading.SendCommand", 1, cmd).Execute();
 
-        IoC.Resolve<ICommand>("Threading.HardStop", 1).Execute();
-
-        IoC.Resolve<ICommand>("Threading.SendCommand", 1, cmd).Execute();
-        IoC.Resolve<ICommand>("Threading.SendCommand", 1, cmd).Execute();
-
-        Assert.False(threadReceiver.isEmpty());
+        Assert.False(objToMove.Object.Position == new Vector(5, 8));
     }
 }

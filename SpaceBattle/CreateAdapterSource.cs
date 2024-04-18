@@ -16,12 +16,12 @@ public class CreateAdapterSource: IStrategy
 
     public object Run(object[] args)
     {
-        string header = $"namespace SpaceBattle.Lib;public class {target.Name}Adapter : {target.Name}";
+        string header = $"namespace SpaceBattle;public class {target.Name}Adapter : {target.Name}";
         string openFigBracket = "{";
         string closingFigBracket = "}";
 
-        string targetField = $"UObject target;";
-        string constructor = $"public {target.Name}Adapter(object _target)" + openFigBracket + $"target = (UObject) _target;" + closingFigBracket;
+        string targetField = $"IUObject target;";
+        string constructor = $"public {target.Name}Adapter(object _target)" + openFigBracket + $"target = (IUObject) _target;" + closingFigBracket;
         
         PropertyInfo[] properties = target.GetProperties();
 
@@ -32,11 +32,11 @@ public class CreateAdapterSource: IStrategy
             string field = $"public {prop.PropertyType} {prop.Name}" + openFigBracket;
             if (prop.GetMethod != null)
             {
-                field += $"get => ({prop.PropertyType}) target.getProperty(\"{prop.Name}\");";
+                field += $"get => ({prop.PropertyType}) target.GetProperty(\"{prop.Name}\");";
             }
             if (prop.SetMethod != null)
             {
-                field += $"set => target.setProperty(\"{prop.Name}\", value);";
+                field += $"set => target.SetProperty(\"{prop.Name}\", value);";
             }
             field += closingFigBracket;
             fields += field;

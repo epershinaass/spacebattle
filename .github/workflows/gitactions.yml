@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
 
   pull_request:
-    branches: [ "master", "perhsina6"]
+    branches: [ "master"]
  
 jobs:
   build:
@@ -25,10 +25,10 @@ jobs:
       - name: Build
         run: dotnet build --no-restore /p:ContinuousIntegrationBuild=true
       - name: Test
-        run: dotnet test --no-build --verbosity normal --collect:"XPlat Code Coverage" /p:CollectCoverage=true /p:CoverletOutputFormat=cobertura
+        run: dotnet test --no-build --verbosity normal /p:CollectCoverage=true -p:CoverletOutput=./coverage/coverage.opencover.xml /p:CoverletOutputFormat=opencover
       - name: Codecov
         uses: codecov/codecov-action@v3
         with: 
-          files: SpaceBattle.Lib.Test/coverage/coverage.co.xml
+          files: SpaceBattle.Lib.Test/coverage/coverage.opencover.xml
 
   

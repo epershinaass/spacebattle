@@ -1,14 +1,14 @@
 using Hwdtech;
 
 
-namespace SpaceBattle.Lib;
+namespace SpaceBattle;
 
 
 public class GameCommand : SpaceBattle.ICommand
 {
-    private Queue<SpaceBattle.ICommand> queue;
+    private readonly Queue<SpaceBattle.ICommand> queue;
 
-    private object scope;
+    private readonly object scope;
 
     public GameCommand(object scope, Queue<SpaceBattle.ICommand> queue)
     {

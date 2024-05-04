@@ -1,9 +1,9 @@
-namespace SpaceBattle.Lib;
+namespace SpaceBattle;
 
 
-public class QueueDequeue : IStrategy  
+public class QueueDequeue : IStrategy
 {
-    public object Run(params object[] args)
+    public object ExecuteStrategy(params object[] args)
     {
         var queue = (Queue<ICommand>)args[0];
         if(!queue.TryDequeue(out ICommand? command))

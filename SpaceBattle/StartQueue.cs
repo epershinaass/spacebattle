@@ -1,6 +1,6 @@
 using Hwdtech;
 using System.Diagnostics;
-namespace SpaceBattle.Lib;
+namespace SpaceBattle;
 
 
 
@@ -29,7 +29,7 @@ public class StartQueue : ICommand
             }
             catch (Exception e)
             {
-                IoC.Resolve<IStrategy>("ExceptionHandler", e, cmd).Run(e, cmd);
+                IoC.Resolve<IStrategy>("DefaultHandler", e, cmd).ExecuteStrategy(e, cmd);
             }
         }
         stopwatch.Stop();

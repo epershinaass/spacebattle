@@ -8,13 +8,7 @@ public class CreateAdapterSource: IStrategy
     {
         target = targetType;
     }
-
-    public object ExecuteStrategy(params object[] args)
-    {
-        throw new NotImplementedException();
-    }
-
-    public object Run(object[] args)
+    public object ExecuteStrategy(object[] args)
     {
         string header = $"namespace SpaceBattle;public class {target.Name}Adapter : {target.Name}";
         string openFigBracket = "{";

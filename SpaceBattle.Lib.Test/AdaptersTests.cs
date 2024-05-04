@@ -48,7 +48,7 @@ public class AdapterTests
 
         Type? IMovableType = Type.GetType("SpaceBattle.IMovable, SpaceBattle", true, true);
 
-        string adapterSource = (string) new CreateAdapterSource(IMovableType!).Run(new object[] {});
+        string adapterSource = (string) new CreateAdapterSource(IMovableType!).ExecuteStrategy(new object[] {});
 
         Assert.Equal(expected, adapterSource);
     }

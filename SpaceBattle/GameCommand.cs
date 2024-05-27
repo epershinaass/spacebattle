@@ -4,13 +4,13 @@ using Hwdtech;
 namespace SpaceBattle;
 
 
-public class GameCommand : SpaceBattle.ICommand
+public class GameCommand : ICommand
 {
-    private readonly Queue<SpaceBattle.ICommand> queue;
+    private Queue<ICommand> queue;
 
-    private readonly object scope;
+    private object scope;
 
-    public GameCommand(object scope, Queue<SpaceBattle.ICommand> queue)
+    public GameCommand(object scope, Queue<ICommand> queue)
     {
         this.scope = scope;
         this.queue = queue;
@@ -20,6 +20,6 @@ public class GameCommand : SpaceBattle.ICommand
     {
         IoC.Resolve<Hwdtech.ICommand>("Scopes.Current.Set", scope).Execute();
 
-        IoC.Resolve<SpaceBattle.ICommand>("StartQueue", queue).Execute();
+        IoC.Resolve<ICommand>("StartQueue", queue).Execute();
     }
 }

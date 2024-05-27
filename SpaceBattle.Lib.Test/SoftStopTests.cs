@@ -131,4 +131,5 @@ public class SoftStopTests
 
         Assert.True(threadReceiver.isEmpty());
     }
+
 }

@@ -11,4 +11,5 @@ public class StopThreadCommand : ICommand
     {
         stoppingThread._stop();
     }
+
 }

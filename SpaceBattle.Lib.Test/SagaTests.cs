@@ -68,6 +68,8 @@ public class SagaTests
          var mockIWAdapter = new Mock<IFuelChangable>();
          mockIWAdapter.SetupGet(x => x.fuelLevel).Returns((float) obj.GetProperty("fuelLevel"));
          mockIWAdapter.SetupGet(x => x.fuelConsumption).Returns((float) obj.GetProperty("fuelConsumption"));
+
+         mockIWAdapter.SetupSet(x => x.fuelLevel = It.Is<float>(v => v < 0)).Throws<Exception>();
  
          IoC.Resolve<Hwdtech.ICommand>("IoC.Register", "MoveCommand", (object[] args) => new MoveCommand(mockIMAdapter.Object)).Execute();
          IoC.Resolve<Hwdtech.ICommand>("IoC.Register", "FuelWasteCommand", (object[] args) => new WasteFuelCommand(mockIWAdapter.Object)).Execute();
@@ -82,6 +84,10 @@ public class SagaTests
          mockIWAdapter.VerifyGet(x => x.fuelConsumption, Times.Exactly(2));
          mockIMAdapter.VerifyGet(x => x.Position, Times.Exactly(1));
          mockIMAdapter.VerifyGet(x => x.Velocity, Times.Exactly(0));
-     }
 
+         mockIWAdapter.Verify();
+     }
 }
+
+
+

@@ -1,16 +1,18 @@
-namespace SpaceBattle.Lib;
+namespace SpaceBattle;
 
 
 public class ServerThread
 {
     public Thread thread { get; private set; }
-    public ReceiverAdapter queue { get; private set; }
+    public IReceiver gamesQueue { get; private set; }
+    public IReceiver messagesQueue { get; private set; }
     bool stop = false;
     Action strategy;
     Action finishingStrategy;
-    public ServerThread(ReceiverAdapter queue)
+    public ServerThread(IReceiver gamesQueue, IReceiver messagesQueue)
     {
-        this.queue = queue;
+        this.gamesQueue = gamesQueue;
+        this.messagesQueue = messagesQueue;
         strategy = () =>
         {
             handleCommand();
@@ -35,7 +37,8 @@ public class ServerThread
     }
     internal void handleCommand()
     {
-        queue.Receive().Execute();
+        if (!gamesQueue.isEmpty()) gamesQueue.Receive().Execute();
+        if (!messagesQueue.isEmpty()) messagesQueue.Receive().Execute();
     }
     internal void updateBehaviour(Action newBehaviour)
     {

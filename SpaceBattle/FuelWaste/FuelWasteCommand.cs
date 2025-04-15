@@ -8,6 +8,11 @@ public class WasteFuelCommand : ICommand
     }      
     public void Execute()
     {
-        obj.fuelLevel -= obj.fuelConsumption;
+        var newFuelLevel = obj.fuelLevel - obj.fuelConsumption;
+
+        if (newFuelLevel < 0)
+            throw new Exception();
+
+        obj.fuelLevel = newFuelLevel;
     }
 }

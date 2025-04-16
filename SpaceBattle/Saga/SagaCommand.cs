@@ -1,10 +1,13 @@
 namespace SpaceBattle;
+
 public class SagaCommand : ICommand
 {
     List<Tuple<ICommand, ICommand>> cmds;
-    public SagaCommand(List<Tuple<ICommand, ICommand>> _cmds)
+    int pivotIndex;
+    public SagaCommand(List<Tuple<ICommand, ICommand>> _cmds, int _pivotIndex = -1)
     {
         cmds = _cmds;
+        pivotIndex = _pivotIndex;
     }      
     public void Execute()
     {
@@ -19,7 +22,10 @@ public class SagaCommand : ICommand
             i -= 1;
             for (; i >= 0; i--)
             {
-                cmds[i].Item2.Execute();
+                if (pivotIndex == -1 || i<= pivotIndex)
+                {
+                    cmds[i].Item2.Execute();
+                }
             }
         }
     }

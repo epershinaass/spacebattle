@@ -4,29 +4,36 @@ public class SagaCommand : ICommand
 {
     List<Tuple<ICommand, ICommand>> cmds;
     int pivotIndex;
-    public SagaCommand(List<Tuple<ICommand, ICommand>> _cmds, int _pivotIndex = -1)
+    int maxRetries;
+    public SagaCommand(List<Tuple<ICommand, ICommand>> _cmds, int _pivotIndex = -1, int _maxRetries = 0)
     {
         cmds = _cmds;
         pivotIndex = _pivotIndex;
+        maxRetries = _maxRetries;
     }      
     public void Execute()
     {
         int i = 0;
-        try
-        {
-            for (; i < cmds.Count(); i++)
+        try {    
+        for (; i < cmds.Count(); i++) {
+            int attempt = 0;
+            while (true)
             {
-                cmds[i].Item1.Execute();
+                try{
+                    cmds[i].Item1.Execute();
+                    break;} 
+                catch {
+                attempt++;
+                if (attempt > maxRetries)
+                throw;}
             }
-        } catch {
+            }
+        }catch{
             i -= 1;
-            for (; i >= 0; i--)
-            {
-                if (pivotIndex == -1 || i<= pivotIndex)
-                {
-                    cmds[i].Item2.Execute();
-                }
-            }
+            for (; i >= 0; i--){
+                if (pivotIndex == -1 || i <= pivotIndex){
+                    cmds[i].Item2.Execute();}
         }
     }
+}
 }

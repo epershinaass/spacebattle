@@ -34,8 +34,8 @@ public class SagaTests
         mockIWAdapter.SetupSet(x => x.fuelLevel = 99).Verifiable();
         
 
-        IoC.Resolve<Hwdtech.ICommand>("IoC.Register", "MoveCommand", (object[] args) => new MoveCommand(mockIMAdapter.Object)).Execute();
-        IoC.Resolve<Hwdtech.ICommand>("IoC.Register", "FuelWasteCommand", (object[] args) => new WasteFuelCommand(mockIWAdapter.Object)).Execute();
+        IoC.Resolve<Hwdtech.ICommand>("IoC.Register", "MoveCommand", (object[] args) => new RetryCommand(new MoveCommand(mockIMAdapter.Object), (int)args[1])).Execute();
+        IoC.Resolve<Hwdtech.ICommand>("IoC.Register", "FuelWasteCommand", (object[] args) =>  new RetryCommand(new WasteFuelCommand(mockIWAdapter.Object), (int)args[1])).Execute();
 
         IoC.Resolve<Hwdtech.ICommand>("IoC.Register", "Undo.MoveCommand", (object[] args) => new MoveCommand(mockIMAdapter.Object)).Execute();
         IoC.Resolve<Hwdtech.ICommand>("IoC.Register", "Undo.FuelWasteCommand", (object[] args) => new WasteFuelCommand(mockIWAdapter.Object)).Execute();

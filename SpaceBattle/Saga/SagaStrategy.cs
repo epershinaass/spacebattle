@@ -22,7 +22,7 @@ public class CreateSaga: IStrategy
 
         for (int i = 0; i<cmdNames.Count; i++){
             string name = cmdNames[i];
-            var cmd = IoC.Resolve<ICommand>(name, obj);
+            var cmd = IoC.Resolve<ICommand>(name, obj, 3);
             var undo = IoC.Resolve<ICommand>("Undo." + name, obj);
             cmds.Add(Tuple.Create(cmd, undo));
             

@@ -14,21 +14,10 @@ public class SagaCommand : ICommand
     public void Execute()
     {
         int i = 0;
-        try {    
+        try{     
         for (; i < cmds.Count(); i++) {
-            int attempt = 0;
-            while (true)
-            {
-                try{
                     cmds[i].Item1.Execute();
-                    break;} 
-                catch {
-                attempt++;
-                if (attempt > maxRetries)
-                throw;}
-            }
-            }
-        }catch{
+        }} catch{
             i -= 1;
             for (; i >= 0; i--){
                 if (pivotIndex == -1 || i <= pivotIndex){

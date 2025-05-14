@@ -1,13 +1,13 @@
 namespace SpaceBattle;
 public class RetryCommand : ICommand
 {
-    private readonly ICommand _inner;
-    private readonly int _maxRetries;
+    private readonly ICommand inner;
+    private readonly int maxRetries;
 
     public RetryCommand(ICommand inner, int maxRetries)
     {
-        _inner = inner;
-        _maxRetries = maxRetries;
+        this.inner = inner;
+        this.maxRetries = maxRetries;
     }
     public void Execute()
     {
@@ -16,14 +16,12 @@ public class RetryCommand : ICommand
         {
             try
             {
-                _inner.Execute();
+                inner.Execute();
                 return;
             }
-            catch
-            {
+            catch{
                 attempt++;
-                if (attempt > _maxRetries)
-                    throw;
+                if (attempt > maxRetries) throw;
             }
         }
     }

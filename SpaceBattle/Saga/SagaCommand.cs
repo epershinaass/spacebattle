@@ -2,46 +2,55 @@ namespace SpaceBattle;
 
 public class SagaCommand : ICommand
 {
-    List<Tuple<ICommand, ICommand>> cmds;
-    int pivotIndex;
-    int maxRetries;
-    public SagaCommand(List<Tuple<ICommand, ICommand>> _cmds, int _pivotIndex = -1, int _maxRetries = 0)
-    {
-        cmds = _cmds;
-        pivotIndex = _pivotIndex;
-        maxRetries = _maxRetries;
-    }      
+    private List<Tuple<ICommand, ICommand>> beforePivot;
+    private ICommand pivotCommand;
+    private List<ICommand> afterPivot;
+    private int maxRetries;
+
+    public SagaCommand(
+        List<Tuple<ICommand, ICommand>> beforePivot,
+        ICommand pivotCommand,
+        List<ICommand> afterPivot,
+        int maxRetries = 0) {
+            this.beforePivot = beforePivot;
+            this.pivotCommand = pivotCommand;
+            this.afterPivot = afterPivot;
+            this.maxRetries = maxRetries;
+        }      
     public void Execute()
     {
-        var executedCommands = new Stack<Tuple<ICommand, ICommand>>();
+        var executed = new Stack<ICommand>();
         int i = 0;
         try{     
-        for (; i < cmds.Count(); i++) {
-                    var command = cmds[i].Item1;
-                    if (maxRetries > 0) {
-                        command = new RetryCommand(command, maxRetries);
-                    }
-                    command.Execute();
-                    executedCommands.Push(cmds[i]);
-        }} catch{
-
-            while (executedCommands.Count > 0) {
-                var cmd = executedCommands.Pop();
-                if (pivotIndex == -1 || Array.IndexOf(cmds.ToArray(), cmd) <= pivotIndex) {
-                    try {
-                        var compensation = cmd.Item2;
-                        if (maxRetries > 0){
-                            compensation = new RetryCommand(compensation, maxRetries);
-                        }
-                        compensation.Execute();
-                    }
-                    catch
-                    {
-                        continue;
-                    }
-                }
-            }
+        for(; i < beforePivot.Count; i++) 
+        {
+            var cmd = WrapRetry(beforePivot[i].Item1);
+            cmd.Execute();
+            executed.Push(beforePivot[i].Item1); 
+        }
+            WrapRetry(pivotCommand).Execute();
+        } catch {
+            Rollback(executed);
             throw;
         }
+        foreach (var cmd in afterPivot) {
+            WrapRetry(cmd).Execute();
+        }
     }
+    
+    public void Rollback(Stack<ICommand> executed) {
+        for (int i = beforePivot.Count - 1; i>= 0; i--) {
+            var cmd = beforePivot[i];
+            if (executed.Contains(cmd.Item1)) {
+                try {
+                    WrapRetry(cmd.Item2).Execute();
+                } catch {
+                }
+            }
+        }
+    }
+    private ICommand WrapRetry(ICommand cmd) => 
+    maxRetries > 0 ? new RetryCommand(cmd, maxRetries) : cmd;
 }
+
+    

@@ -1,96 +1,110 @@
 namespace SpaceBattle.Lib.Test;
 
-using Moq;
 using Hwdtech;
 using Hwdtech.Ioc;
-public class SagaTests
+using Moq;
+using SpaceBattle;
+using ICommand = SpaceBattle.ICommand;
+
+public class SagaCommandUnitTest
 {
-    public SagaTests()
+    Mock<ICommand> successCommandMock;
+    Mock<ICommand> exceptionCommandMock;
+    Mock<ICommand> compensatingCommandMock;
+
+    public class AdaptStrategy : IStrategy
+    {
+        public object ExecuteStrategy(params object[] args)
+        {
+            return new Mock<object>().Object;
+        }
+    }
+
+    public SagaCommandUnitTest()
     {
         new InitScopeBasedIoCImplementationCommand().Execute();
+        var scope = IoC.Resolve<object>("Scopes.New", IoC.Resolve<object>("Scopes.Root"));
+        IoC.Resolve<Hwdtech.ICommand>("Scopes.Current.Set", scope).Execute();
 
-        IoC.Resolve<Hwdtech.ICommand>("Scopes.Current.Set", IoC.Resolve<object>("Scopes.New", IoC.Resolve<object>("Scopes.Root"))).Execute();
-    }  
-    
-    [Fact]
-    public void executeSagaSuccessTest()
-    {
-        var obj = new TestObject(new Dictionary<string, object>());
-        obj.SetProperty("Position", new Vector(12, 5));
-        obj.SetProperty("Velocity", new Vector(-7, 3));
-        obj.SetProperty("fuelLevel", (float) 100);
-        obj.SetProperty("fuelConsumption", (float) 1);
+        IoC.Resolve<Hwdtech.ICommand>("IoC.Register", "Game.Commands.SagaCommand",
+            (object[] args) => new CreateSaga().ExecuteStrategy(args)).Execute();
 
-        var mockIMAdapter = new Mock<IMovable>();
-        mockIMAdapter.SetupGet(x => x.Position).Returns((Vector) obj.GetProperty("Position"));
-        mockIMAdapter.SetupGet(x => x.Velocity).Returns((Vector) obj.GetProperty("Velocity"));
+        IoC.Resolve<Hwdtech.ICommand>("IoC.Register", "Game.Adapter.AdaptForCmd",
+            (object[] args) => new AdaptStrategy().ExecuteStrategy(args)).Execute();
 
-        mockIMAdapter.SetupSet(x => x.Position = new Vector(5, 8)).Verifiable();
- 
-        var mockIWAdapter = new Mock<IFuelChangable>();
-        mockIWAdapter.SetupGet(x => x.fuelLevel).Returns((float) obj.GetProperty("fuelLevel"));
-        mockIWAdapter.SetupGet(x => x.fuelConsumption).Returns((float) obj.GetProperty("fuelConsumption"));
+        this.successCommandMock = new Mock<ICommand>();
+        successCommandMock.Setup(cmd => cmd.Execute()).Verifiable();
 
-        mockIWAdapter.SetupSet(x => x.fuelLevel = 99).Verifiable();
-        
+        this.exceptionCommandMock = new Mock<ICommand>();
+        exceptionCommandMock.Setup(cmd => cmd.Execute()).Throws(new Exception()).Verifiable();
 
-        IoC.Resolve<Hwdtech.ICommand>("IoC.Register", "MoveCommand", (object[] args) => new RetryCommand(new MoveCommand(mockIMAdapter.Object), (int)args[1])).Execute();
-        IoC.Resolve<Hwdtech.ICommand>("IoC.Register", "FuelWasteCommand", (object[] args) =>  new RetryCommand(new WasteFuelCommand(mockIWAdapter.Object), (int)args[1])).Execute();
+        this.compensatingCommandMock = new Mock<ICommand>();
+        compensatingCommandMock.Setup(cmd => cmd.Execute()).Verifiable();
 
-        IoC.Resolve<Hwdtech.ICommand>("IoC.Register", "Undo.MoveCommand", (object[] args) => new MoveCommand(mockIMAdapter.Object)).Execute();
-        IoC.Resolve<Hwdtech.ICommand>("IoC.Register", "Undo.FuelWasteCommand", (object[] args) => new WasteFuelCommand(mockIWAdapter.Object)).Execute();
+        IoC.Resolve<Hwdtech.ICommand>("IoC.Register", "SuccessCommand",
+            (object[] args) => successCommandMock.Object).Execute();
 
-        SagaCommand sc = (SagaCommand) new CreateSaga().ExecuteStrategy("MoveCommand", "FuelWasteCommand", "", obj);
-        sc.Execute();
+        IoC.Resolve<Hwdtech.ICommand>("IoC.Register", "AnotherSuccessCommand",
+            (object[] args) => successCommandMock.Object).Execute();
 
-        mockIMAdapter.VerifyGet(x => x.Position, Times.Once);
-        mockIMAdapter.VerifyGet(x => x.Velocity, Times.Once);
-        mockIWAdapter.VerifyGet(x => x.fuelLevel, Times.Once);
-        mockIWAdapter.VerifyGet(x => x.fuelConsumption, Times.Once);
+        IoC.Resolve<Hwdtech.ICommand>("IoC.Register", "Undo.AnotherSuccessCommand",
+            (object[] args) => successCommandMock.Object).Execute();
 
-        mockIMAdapter.Verify();
-        mockIWAdapter.Verify();
+        IoC.Resolve<Hwdtech.ICommand>("IoC.Register", "RetrySuccessCommand",
+            (object[] args) => successCommandMock.Object).Execute();
+
+        IoC.Resolve<Hwdtech.ICommand>("IoC.Register", "Undo.RetrySuccessCommand",
+            (object[] args) => successCommandMock.Object).Execute();
+
+        IoC.Resolve<Hwdtech.ICommand>("IoC.Register", "ExceptionCommand",
+            (object[] args) => exceptionCommandMock.Object).Execute();
+
+        IoC.Resolve<Hwdtech.ICommand>("IoC.Register", "Undo.SuccessCommand",
+            (object[] args) => compensatingCommandMock.Object).Execute();
+
+        IoC.Resolve<Hwdtech.ICommand>("IoC.Register", "Undo.ExceptionCommand",
+            (object[] args) => compensatingCommandMock.Object).Execute();
     }
 
     [Fact]
-    public void executeSagaPivotTest()
+    public void SagaExecutesSuccessfully_NoRollback()
     {
-        var obj = new TestObject(new Dictionary<string, object>());
-        obj.SetProperty("Position", new Vector(12, 5));
-        obj.SetProperty("Velocity", new Vector(-7, 3));
-        obj.SetProperty("fuelLevel", (float)100);
-        obj.SetProperty("fuelConsumption", (float)1);
+        var obj = new Mock<IUObject>();
+        var saga = IoC.Resolve<ICommand>("Game.Commands.SagaCommand",
+            "SuccessCommand", "AnotherSuccessCommand", "AnotherSuccessCommand", obj.Object, 0);
 
-        var mockIMAdapter = new Mock<IMovable>();
-        mockIMAdapter.SetupGet(x => x.Position).Returns((Vector)obj.GetProperty("Position"));
-        mockIMAdapter.SetupGet(x => x.Velocity).Returns((Vector)obj.GetProperty("Velocity"));
+        saga.Execute();
 
-        mockIMAdapter.SetupSet(x => x.Position = new Vector(5, 8)).Verifiable();
-    
-        var mockIWAdapter = new Mock<IFuelChangable>();
-        mockIWAdapter.SetupGet(x => x.fuelLevel).Returns((float)obj.GetProperty("fuelLevel"));
-        mockIWAdapter.SetupGet(x => x.fuelConsumption).Returns((float)obj.GetProperty("fuelConsumption"));
+        successCommandMock.Verify(cmd => cmd.Execute(), Times.Exactly(2));
+        exceptionCommandMock.Verify(cmd => cmd.Execute(), Times.Never);
+        compensatingCommandMock.Verify(cmd => cmd.Execute(), Times.Never);
+    }
 
-        mockIWAdapter.SetupSet(x => x.fuelLevel = 99).Verifiable();
+    [Fact]
+    public void SagaFailsAndRollsBack()
+    {
+        var obj = new Mock<IUObject>();
+        var saga = IoC.Resolve<ICommand>("Game.Commands.SagaCommand",
+            "SuccessCommand", "ExceptionCommand", "ExceptionCommand", obj.Object, 0);
 
-        IoC.Resolve<Hwdtech.ICommand>("IoC.Register", "MoveCommand", (object[] args) => new MoveCommand(mockIMAdapter.Object)).Execute();
-        IoC.Resolve<Hwdtech.ICommand>("IoC.Register", "FuelWasteCommand", (object[] args) => new WasteFuelCommand(mockIWAdapter.Object)).Execute();
+        Assert.Throws<Exception>(() => saga.Execute());
 
-        IoC.Resolve<Hwdtech.ICommand>("IoC.Register", "Undo.MoveCommand", (object[] args) => new MoveCommand(mockIMAdapter.Object)).Execute();
-        IoC.Resolve<Hwdtech.ICommand>("IoC.Register", "Undo.FuelWasteCommand", (object[] args) => new WasteFuelCommand(mockIWAdapter.Object)).Execute();
+        successCommandMock.Verify(cmd => cmd.Execute(), Times.Once);
+        exceptionCommandMock.Verify(cmd => cmd.Execute(), Times.Once);
+        compensatingCommandMock.Verify(cmd => cmd.Execute(), Times.Once);
+    }
 
-        string pivotName = "FuelWasteCommand";
-        SagaCommand sc = (SagaCommand)new CreateSaga().ExecuteStrategy("MoveCommand", pivotName, "MoveCommand", obj);
-        sc.Execute();
+    [Fact]
+    public void SagaWithThreeSuccessfulCommands()
+    {
+        var obj = new Mock<IUObject>();
+        var saga = IoC.Resolve<ICommand>("Game.Commands.SagaCommand",
+            "SuccessCommand", "AnotherSuccessCommand", "RetrySuccessCommand", "RetrySuccessCommand", obj.Object, 0);
 
-        mockIMAdapter.VerifyGet(x => x.Position, Times.Once);
-        mockIMAdapter.VerifyGet(x => x.Velocity, Times.Once);
-        mockIWAdapter.VerifyGet(x => x.fuelLevel, Times.Once);
-        mockIWAdapter.VerifyGet(x => x.fuelConsumption, Times.Once);
+        saga.Execute();
 
-        mockIMAdapter.Verify();
-        mockIWAdapter.Verify();
-
-        mockIWAdapter.VerifySet(x => x.fuelLevel = 99, Times.Once); 
+        successCommandMock.Verify(cmd => cmd.Execute(), Times.Exactly(3));
+        exceptionCommandMock.Verify(cmd => cmd.Execute(), Times.Never);
+        compensatingCommandMock.Verify(cmd => cmd.Execute(), Times.Never);
     }
 }

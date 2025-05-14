@@ -8,32 +8,44 @@ public class CreateSaga: IStrategy
     public object ExecuteStrategy(params object[] args)
     {
         List<string> cmdNames = new List<string>();
-        for (int i=0; i<args.Length-2; i++){
+        for (int i=0; i<args.Length-3; i++){
 
             cmdNames.Add((string) args[i]);
 
         }
 
-        string pivotName = (string)args[args.Length - 2];
-        IUObject obj = (IUObject) args[args.Length-1];
+        string pivotName = (string)args[args.Length - 3];
+        IUObject obj = (IUObject) args[args.Length-2];
+        int maxRetries = (int)args[args.Length - 1];
 
-        List<Tuple<ICommand, ICommand>> cmds = new List<Tuple<ICommand, ICommand>>();
-        int pivotIndex = -1;
+        List<Tuple<ICommand, ICommand>> beforePivot = new List<Tuple<ICommand, ICommand>>();
+        List<ICommand> afterPivot = new List<ICommand>();
+        ICommand? pivotCommand = null;
 
-        for (int i = 0; i<cmdNames.Count; i++){
-            string name = cmdNames[i];
+        bool pivotFound = false;
+
+        foreach (string name in cmdNames){
             var cmd = IoC.Resolve<ICommand>(name, obj, 3);
-            var undo = IoC.Resolve<ICommand>("Undo." + name, obj);
-            cmds.Add(Tuple.Create(cmd, undo));
-            
-            if (name == pivotName)
-            {
-                pivotIndex = i;
+
+            if (name == pivotName){
+                pivotCommand = cmd;
+                pivotFound = true;
+                continue;
             }
-            
+
+            if (!pivotFound) {
+                var undo = IoC.Resolve<ICommand>("Undo." + name, obj);
+                beforePivot.Add(Tuple.Create(cmd, undo));
+            }
+            else {
+                afterPivot.Add(cmd);
+            }
         }
 
-        return new SagaCommand(cmds, pivotIndex);
+        if (pivotCommand is null) {
+            throw new InvalidOperationException("Pivot command not found.");
+        }
+        return new SagaCommand(beforePivot, pivotCommand, afterPivot, maxRetries);
     }
-    
 }
+    

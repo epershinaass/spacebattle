@@ -6,7 +6,7 @@ using Moq;
 using SpaceBattle;
 using ICommand = SpaceBattle.ICommand;
 
-public class SagaCommandUnitTest
+public class SagaCommandTest
 {
     Mock<ICommand> successCommandMock;
     Mock<ICommand> exceptionCommandMock;
@@ -20,7 +20,7 @@ public class SagaCommandUnitTest
         }
     }
 
-    public SagaCommandUnitTest()
+    public SagaCommandTest()
     {
         new InitScopeBasedIoCImplementationCommand().Execute();
         var scope = IoC.Resolve<object>("Scopes.New", IoC.Resolve<object>("Scopes.Root"));
@@ -67,7 +67,7 @@ public class SagaCommandUnitTest
     }
 
     [Fact]
-    public void SagaExecutesSuccessfully_NoRollback()
+    public void SagaExecutesSuccessfullyNoRollback()
     {
         var obj = new Mock<IUObject>();
         var saga = IoC.Resolve<ICommand>("Game.Commands.SagaCommand",
@@ -106,5 +106,50 @@ public class SagaCommandUnitTest
         successCommandMock.Verify(cmd => cmd.Execute(), Times.Exactly(3));
         exceptionCommandMock.Verify(cmd => cmd.Execute(), Times.Never);
         compensatingCommandMock.Verify(cmd => cmd.Execute(), Times.Never);
+    }
+
+     [Fact]
+    public void RetryCommandExecutesSuccessfullyOnFirstTry()
+    {
+        var commandMock = new Mock<ICommand>();
+        commandMock.Setup(cmd => cmd.Execute()).Verifiable();
+
+        var retryCmd = new RetryCommand(commandMock.Object, 3);
+        retryCmd.Execute();
+
+        commandMock.Verify(cmd => cmd.Execute(), Times.Once);
+    }
+
+    [Fact]
+    public void RetryCommandExecutesSuccessfullyAfterRetries()
+    {
+        var commandMock = new Mock<ICommand>();
+        int callCount = 0;
+
+        commandMock.Setup(cmd => cmd.Execute()).Callback(() =>
+        {
+            if (callCount < 2)
+            {
+                callCount++;
+                throw new Exception("Fail");
+            }
+        });
+
+        var retryCmd = new RetryCommand(commandMock.Object, 3);
+        retryCmd.Execute();
+
+        commandMock.Verify(cmd => cmd.Execute(), Times.Exactly(3));
+    }
+
+    [Fact]
+    public void RetryCommandThrowsAfterMaxRetries()
+    {
+        var commandMock = new Mock<ICommand>();
+        commandMock.Setup(cmd => cmd.Execute()).Throws(new Exception("Always fails"));
+
+        var retryCmd = new RetryCommand(commandMock.Object, 2);
+
+        Assert.Throws<Exception>(() => retryCmd.Execute());
+        commandMock.Verify(cmd => cmd.Execute(), Times.Exactly(3)); 
     }
 }

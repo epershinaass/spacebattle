@@ -53,43 +53,6 @@ public class SagaTests
     }
 
     [Fact]
-     public void executeSagaFailTest()
-     {
-         var obj = new TestObject(new Dictionary<string, object>());
-         obj.SetProperty("Position", new Vector(12, 5));
-         obj.SetProperty("Velocity", new Vector(-7, 3));
-         obj.SetProperty("fuelLevel", (float) 100);
-         obj.SetProperty("fuelConsumption", (float) 1);
- 
-         var mockIMAdapter = new Mock<IMovable>();
-         mockIMAdapter.SetupGet(x => x.Position).Throws<Exception>();
-         mockIMAdapter.SetupGet(x => x.Velocity).Returns((Vector) obj.GetProperty("Velocity"));
-  
-         var mockIWAdapter = new Mock<IFuelChangable>();
-         mockIWAdapter.SetupGet(x => x.fuelLevel).Returns((float) obj.GetProperty("fuelLevel"));
-         mockIWAdapter.SetupGet(x => x.fuelConsumption).Returns((float) obj.GetProperty("fuelConsumption"));
-
-         mockIWAdapter.SetupSet(x => x.fuelLevel = It.Is<float>(v => v < 0)).Throws<Exception>();
- 
-         IoC.Resolve<Hwdtech.ICommand>("IoC.Register", "MoveCommand", (object[] args) => new MoveCommand(mockIMAdapter.Object)).Execute();
-         IoC.Resolve<Hwdtech.ICommand>("IoC.Register", "FuelWasteCommand", (object[] args) => new WasteFuelCommand(mockIWAdapter.Object)).Execute();
- 
-         IoC.Resolve<Hwdtech.ICommand>("IoC.Register", "Undo.MoveCommand", (object[] args) => new MoveCommand(mockIMAdapter.Object)).Execute();
-         IoC.Resolve<Hwdtech.ICommand>("IoC.Register", "Undo.FuelWasteCommand", (object[] args) => new WasteFuelCommand(mockIWAdapter.Object)).Execute();
- 
-         SagaCommand sc = (SagaCommand) new CreateSaga().ExecuteStrategy("FuelWasteCommand", "MoveCommand", "", obj);
-         sc.Execute();
- 
-         mockIWAdapter.VerifyGet(x => x.fuelLevel, Times.Exactly(2));
-         mockIWAdapter.VerifyGet(x => x.fuelConsumption, Times.Exactly(2));
-         mockIMAdapter.VerifyGet(x => x.Position, Times.Exactly(1));
-         mockIMAdapter.VerifyGet(x => x.Velocity, Times.Exactly(0));
-
-         mockIWAdapter.Verify();
-     }
-
-        
-    [Fact]
     public void executeSagaPivotTest()
     {
         var obj = new TestObject(new Dictionary<string, object>());

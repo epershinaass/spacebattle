@@ -16,13 +16,25 @@ public class SagaCommand : ICommand
         int i = 0;
         try{     
         for (; i < cmds.Count(); i++) {
-                    cmds[i].Item1.Execute();
+                    var command = cmds[i].Item1;
+                    if (maxRetries > 0) {
+                        command = new RetryCommand(command, maxRetries);
+                    }
+                    command.Execute();
         }} catch{
             i -= 1;
             for (; i >= 0; i--){
                 if (pivotIndex == -1 || i <= pivotIndex){
-                    cmds[i].Item2.Execute();}
+                    try{
+                        cmds[i].Item2.Execute();
+                    }
+                    catch{
+                        continue;
+                    }
+                    
         }
     }
+    throw;
+}
 }
 }

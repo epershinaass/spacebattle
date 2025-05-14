@@ -13,6 +13,7 @@ public class SagaCommand : ICommand
     }      
     public void Execute()
     {
+        var executedCommands = new Stack<Tuple<ICommand, ICommand>>();
         int i = 0;
         try{     
         for (; i < cmds.Count(); i++) {
@@ -21,20 +22,26 @@ public class SagaCommand : ICommand
                         command = new RetryCommand(command, maxRetries);
                     }
                     command.Execute();
+                    executedCommands.Push(cmds[i]);
         }} catch{
-            i -= 1;
-            for (; i >= 0; i--){
-                if (pivotIndex == -1 || i <= pivotIndex){
-                    try{
-                        cmds[i].Item2.Execute();
+
+            while (executedCommands.Count > 0) {
+                var cmd = executedCommands.Pop();
+                if (pivotIndex == -1 || Array.IndexOf(cmds.ToArray(), cmd) <= pivotIndex) {
+                    try {
+                        var compensation = cmd.Item2;
+                        if (maxRetries > 0){
+                            compensation = new RetryCommand(compensation, maxRetries);
+                        }
+                        compensation.Execute();
                     }
-                    catch{
+                    catch
+                    {
                         continue;
                     }
-                    
+                }
+            }
+            throw;
         }
     }
-    throw;
-}
-}
 }

@@ -4,13 +4,13 @@ public class SagaCommand : ICommand
 {
     private List<Tuple<ICommand, ICommand>> beforePivot;
     private ICommand pivotCommand;
-    private List<ICommand> afterPivot;
+    private List<Tuple<ICommand, ICommand>> afterPivot;
     private int maxRetries;
 
     public SagaCommand(
         List<Tuple<ICommand, ICommand>> beforePivot,
         ICommand pivotCommand,
-        List<ICommand> afterPivot,
+        List<Tuple<ICommand, ICommand>> afterPivot,
         int maxRetries = 0) {
             this.beforePivot = beforePivot;
             this.pivotCommand = pivotCommand;
@@ -19,38 +19,55 @@ public class SagaCommand : ICommand
         }      
     public void Execute()
     {
-        var executed = new Stack<ICommand>();
-        int i = 0;
+        int attempt = 0;
+        while (true) {
+        var executedBefore = new Stack<ICommand>();
+        var executedAfter = new Stack<ICommand>();
         try{     
-        for(; i < beforePivot.Count; i++) 
+        for(int i = 0; i < beforePivot.Count; i++) 
         {
-            var cmd = WrapRetry(beforePivot[i].Item1);
-            cmd.Execute();
-            executed.Push(beforePivot[i].Item1); 
+            beforePivot[i].Item1.Execute();
+            executedBefore.Push(beforePivot[i].Item1); 
         }
-            WrapRetry(pivotCommand).Execute();
+            pivotCommand.Execute();
+
+        for (int i = 0; i < afterPivot.Count; i++) {
+            afterPivot[i].Item1.Execute();
+            executedAfter.Push(afterPivot[i].Item1); 
+        }
+        break;
+
         } catch {
-            Rollback(executed);
-            throw;
-        }
-        foreach (var cmd in afterPivot) {
-            WrapRetry(cmd).Execute();
-        }
-    }
-    
-    public void Rollback(Stack<ICommand> executed) {
-        for (int i = beforePivot.Count - 1; i>= 0; i--) {
-            var cmd = beforePivot[i];
-            if (executed.Contains(cmd.Item1)) {
-                try {
-                    WrapRetry(cmd.Item2).Execute();
-                } catch {
-                }
+            Rollback(executedBefore, executedAfter);
+            attempt++;
+            if (attempt > maxRetries) {
+                throw;
             }
         }
     }
-    private ICommand WrapRetry(ICommand cmd) => 
-    maxRetries > 0 ? new RetryCommand(cmd, maxRetries) : cmd;
 }
+    
+    public void Rollback(Stack<ICommand> executedBefore, Stack<ICommand> executedAfter) {
+        for (int i = beforePivot.Count - 1; i >= 0; i--) {
+            var undoCmd = beforePivot[i].Item2;
+            try {
+                    undoCmd.Execute(); }
+                catch {} 
+        while (executedAfter.Count > 0) {
+            var cmd = executedAfter.Pop();
+            int idx = afterPivot.FindIndex(t => t.Item1 == cmd);
+                if (idx >= 0)
+                {
+                    try
+                    {
+                        afterPivot[idx].Item2.Execute();
+                    }
+                    catch { }
+                }
+            } 
+        }
+       }   }
+
+
 
     

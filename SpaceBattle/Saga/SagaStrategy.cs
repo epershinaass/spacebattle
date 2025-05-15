@@ -19,7 +19,7 @@ public class CreateSaga: IStrategy
         int maxRetries = (int)args[args.Length - 1];
 
         List<Tuple<ICommand, ICommand>> beforePivot = new List<Tuple<ICommand, ICommand>>();
-        List<ICommand> afterPivot = new List<ICommand>();
+        List<Tuple<ICommand, ICommand>> afterPivot = new List<Tuple<ICommand, ICommand>>();
         ICommand? pivotCommand = null;
 
         bool pivotFound = false;
@@ -38,7 +38,8 @@ public class CreateSaga: IStrategy
                 beforePivot.Add(Tuple.Create(cmd, undo));
             }
             else {
-                afterPivot.Add(cmd);
+                var undo = IoC.Resolve<ICommand>("Undo." + name, obj);
+                beforePivot.Add(Tuple.Create(cmd, undo));
             }
         }
 

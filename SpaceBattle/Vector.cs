@@ -13,6 +13,11 @@
             return first.array.Length == second.array.Length;
         }
 
+        public int this[int index]
+        {
+            get { return array[index]; }
+            set {array[index] = value; }
+        }
 
         public static Vector operator +(Vector first, Vector second)
         {

@@ -1,4 +1,4 @@
-namespace SpaceBattle.Lib;
+namespace SpaceBattle;
 using System.Collections.Concurrent;
 
 public class ReceiverAdapter : IReceiver

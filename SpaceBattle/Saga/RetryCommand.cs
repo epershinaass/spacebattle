@@ -1,4 +1,5 @@
 namespace SpaceBattle;
+
 public class RetryCommand : ICommand
 {
     private readonly ICommand inner;
@@ -19,7 +20,8 @@ public class RetryCommand : ICommand
                 inner.Execute();
                 return;
             }
-            catch{
+            catch
+            {
                 attempt++;
                 if (attempt > maxRetries) throw;
             }

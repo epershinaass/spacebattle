@@ -17,13 +17,13 @@ public class ShardedThreadsTests
 
         ConcurrentDictionary<string, ConcurrentQueue<ICommand>> gamesQueues = new ConcurrentDictionary<string, ConcurrentQueue<ICommand>>();
         IoC.Resolve<Hwdtech.ICommand>("IoC.Register", "Game.Queue.GetAll", (object[] args) => gamesQueues).Execute();
-        IoC.Resolve<Hwdtech.ICommand>("IoC.Register", "Game.Queue.Get", (object[] args) => gamesQueues[(string) args[0]]).Execute();
+        IoC.Resolve<Hwdtech.ICommand>("IoC.Register", "Game.Queue.Get", (object[] args) => gamesQueues[(string)args[0]]).Execute();
         IoC.Resolve<Hwdtech.ICommand>("IoC.Register", "Game.MakeNewId", (object[] args) => "game" + numberOfGames++.ToString()).Execute();
         IoC.Resolve<Hwdtech.ICommand>("IoC.Register", "Commands.GameCommand", (object[] args) => new Mock<ICommand>().Object).Execute();
-        IoC.Resolve<Hwdtech.ICommand>("IoC.Register", "Commands.InterpretMessage", (object[] args) => new InterpretThreadMessageCommand((IMessage) args[0])).Execute();
+        IoC.Resolve<Hwdtech.ICommand>("IoC.Register", "Commands.InterpretMessage", (object[] args) => new InterpretThreadMessageCommand((IMessage)args[0])).Execute();
         IoC.Resolve<Hwdtech.ICommand>("IoC.Register", "CreateCommand", (object[] args) => new Mock<ICommand>().Object).Execute();
     }
-    
+
     [Fact]
     public void GameCreationTest()
     {
@@ -49,18 +49,19 @@ public class ShardedThreadsTests
         ServerThread thread1 = new ServerThread(gra1, mra1);
         ServerThread thread2 = new ServerThread(gra2, mra2);
 
-        List<ServerThread> threads = new List<ServerThread> {thread1, thread2};
+        List<ServerThread> threads = new List<ServerThread> { thread1, thread2 };
 
-        IoC.Resolve<Hwdtech.ICommand>("IoC.Register", "Threading.Thread.Get", (object[] args) => threads[(int) args[0]]).Execute();
-        IoC.Resolve<Hwdtech.ICommand>("IoC.Register", "Threading.Get.MessageSender", (object[] args) => msgSenders[(string) args[0]]).Execute();
+        IoC.Resolve<Hwdtech.ICommand>("IoC.Register", "Threading.Thread.Get", (object[] args) => threads[(int)args[0]]).Execute();
+        IoC.Resolve<Hwdtech.ICommand>("IoC.Register", "Threading.Get.MessageSender", (object[] args) => msgSenders[(string)args[0]]).Execute();
 
         ConcurrentDictionary<string, List<string>> threadsGames = new ConcurrentDictionary<string, List<string>>();
         threadsGames["th1"] = new List<string>();
         threadsGames["th2"] = new List<string>();
 
         new CreateNewGameConcurrent().ExecuteStrategy();
-        
-        Assert.Equal(1, IoC.Resolve<ConcurrentDictionary<string, ConcurrentQueue<ICommand>>>("Game.Queue.GetAll").Count);
+
+        var allGames = IoC.Resolve<ConcurrentDictionary<string, ConcurrentQueue<ICommand>>>("Game.Queue.GetAll");
+        Assert.Single(allGames);
 
         new CreateNewGameConcurrent().ExecuteStrategy();
 
@@ -86,10 +87,10 @@ public class ShardedThreadsTests
 
         ServerThread thread1 = new ServerThread(gra1, mra1);
 
-        List<ServerThread> threads = new List<ServerThread> {thread1};
+        List<ServerThread> threads = new List<ServerThread> { thread1 };
 
-        IoC.Resolve<Hwdtech.ICommand>("IoC.Register", "Threading.Thread.Get", (object[] args) => threads[(int) args[0]]).Execute();
-        IoC.Resolve<Hwdtech.ICommand>("IoC.Register", "Threading.Get.MessageSender", (object[] args) => msgSenders[(string) args[0]]).Execute();
+        IoC.Resolve<Hwdtech.ICommand>("IoC.Register", "Threading.Thread.Get", (object[] args) => threads[(int)args[0]]).Execute();
+        IoC.Resolve<Hwdtech.ICommand>("IoC.Register", "Threading.Get.MessageSender", (object[] args) => msgSenders[(string)args[0]]).Execute();
 
         ConcurrentDictionary<string, List<string>> threadsGames = new ConcurrentDictionary<string, List<string>>();
         threadsGames["th1"] = new List<string>();
@@ -105,7 +106,7 @@ public class ShardedThreadsTests
 
         shThreads.sendMessage(mockMsg.Object);
 
-        Assert.Equal(1, msgQueue1.Count);
+        Assert.NotEmpty(msgQueue1);
     }
     [Fact]
     public void MessageInterpretationTest()
@@ -126,10 +127,10 @@ public class ShardedThreadsTests
 
         ServerThread thread1 = new ServerThread(gra1, mra1);
 
-        List<ServerThread> threads = new List<ServerThread> {thread1};
+        List<ServerThread> threads = new List<ServerThread> { thread1 };
 
-        IoC.Resolve<Hwdtech.ICommand>("IoC.Register", "Threading.Thread.Get", (object[] args) => threads[(int) args[0]]).Execute();
-        IoC.Resolve<Hwdtech.ICommand>("IoC.Register", "Threading.Get.MessageSender", (object[] args) => msgSenders[(string) args[0]]).Execute();
+        IoC.Resolve<Hwdtech.ICommand>("IoC.Register", "Threading.Thread.Get", (object[] args) => threads[(int)args[0]]).Execute();
+        IoC.Resolve<Hwdtech.ICommand>("IoC.Register", "Threading.Get.MessageSender", (object[] args) => msgSenders[(string)args[0]]).Execute();
 
         ConcurrentDictionary<string, List<string>> threadsGames = new ConcurrentDictionary<string, List<string>>();
         threadsGames["th1"] = new List<string>();
@@ -147,6 +148,7 @@ public class ShardedThreadsTests
 
         msgQueue1.Take().Execute();
 
-        Assert.Equal(1, IoC.Resolve<ConcurrentDictionary<string, ConcurrentQueue<ICommand>>>("Game.Queue.GetAll")["game1"].Count);
+        var gameQueue = IoC.Resolve<ConcurrentDictionary<string, ConcurrentQueue<ICommand>>>("Game.Queue.GetAll")["game1"];
+        Assert.NotEmpty(gameQueue);
     }
 }

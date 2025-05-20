@@ -1,7 +1,7 @@
 using Hwdtech;
 
 
-namespace SpaceBattle.Lib;
+namespace SpaceBattle;
 public class SoftStopThreadCommand : ICommand
 {
     ServerThread stoppingThread;
@@ -16,7 +16,7 @@ public class SoftStopThreadCommand : ICommand
     {
         Action softStopStrategy = () => 
         {
-            if (stoppingThread.queue.isEmpty())
+            if (stoppingThread.gamesQueue.isEmpty())
             {
                 int threadId = IoC.Resolve<int>("Threading.GetThreadId", this.stoppingThread);
                 ICommand hardStopThread = IoC.Resolve<ICommand>("Threading.HardStop", threadId, this.finishingTask);

@@ -1,7 +1,7 @@
 using Hwdtech;
 
 
-namespace SpaceBattle.Lib;
+namespace SpaceBattle;
 using System.Collections.Concurrent;
 
 public class SenderAdapter : ISender

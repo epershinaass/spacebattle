@@ -1,7 +1,7 @@
 using Hwdtech;
 
 
-namespace SpaceBattle.Lib;
+namespace SpaceBattle;
 public class HardStopThreadCommand : ICommand
 {
     ServerThread stoppingThread;

@@ -1,4 +1,4 @@
-namespace SpaceBattle.Lib;
+namespace SpaceBattle;
 public class UpdateFinishBehaviourCommand : ICommand
 {
     Action behaviour;

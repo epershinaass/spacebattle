@@ -18,15 +18,14 @@ namespace SpaceBattle
                 try
                 {
                     _inner.Execute();
-                    return; // Успешно — выходим
+                    return; 
                 }
                 catch when (attempt < _maxRetries)
                 {
-                    // Игнорируем, пробуем снова
+                    
                 }
             }
 
-            // Все попытки исчерпаны — пробрасываем исключение
             throw new Exception($"Command failed after {_maxRetries + 1} attempts.");
         }
     }

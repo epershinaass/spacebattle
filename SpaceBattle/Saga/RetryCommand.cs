@@ -1,30 +1,33 @@
-namespace SpaceBattle;
-
-public class RetryCommand : ICommand
+namespace SpaceBattle
 {
-    private readonly ICommand inner;
-    private readonly int maxRetries;
+    public class RetryCommand : ICommand
+    {
+        private readonly ICommand _inner;
+        private readonly int _maxRetries;
 
-    public RetryCommand(ICommand inner, int maxRetries)
-    {
-        this.inner = inner;
-        this.maxRetries = maxRetries;
-    }
-    public void Execute()
-    {
-        int attempt = 0;
-        while (true)
+        public RetryCommand(ICommand inner, int maxRetries)
         {
-            try
+            _inner = inner;
+            _maxRetries = maxRetries;
+        }
+
+        public void Execute()
+        {
+            for (int attempt = 0; attempt <= _maxRetries; attempt++)
             {
-                inner.Execute();
-                return;
+                try
+                {
+                    _inner.Execute();
+                    return; // Успешно — выходим
+                }
+                catch when (attempt < _maxRetries)
+                {
+                    // Игнорируем, пробуем снова
+                }
             }
-            catch
-            {
-                attempt++;
-                if (attempt > maxRetries) throw;
-            }
+
+            // Все попытки исчерпаны — пробрасываем исключение
+            throw new Exception($"Command failed after {_maxRetries + 1} attempts.");
         }
     }
 }

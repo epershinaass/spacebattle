@@ -16,17 +16,17 @@ namespace SpaceBattle
             ExecuteWithRetry(_inner, 0);
         }
 
-        private void ExecuteWithRetry(ICommand cmd, int currentAttempt)
+        private void ExecuteWithRetry(ICommand _inner, int currentAttempt)
         {
             try
             {
-                cmd.Execute();
+                _inner.Execute();
             }
             catch
             {
                 if (currentAttempt < _maxRetries)
                 {
-                    ExecuteWithRetry(cmd, currentAttempt + 1);
+                    ExecuteWithRetry(_inner, currentAttempt + 1);
                 }
                 else
                 {

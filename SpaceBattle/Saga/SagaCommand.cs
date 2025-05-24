@@ -15,19 +15,24 @@ namespace SpaceBattle
 
         public void Execute()
         {
-            var undoCommands = new List<ICommand>();
+            int executedCount = 0;
             try
             {
-                undoCommands = _actions.Aggregate(new List<ICommand>(), (undoList, action) =>
+                executedCount = _actions.Aggregate(0, (count, action) =>
                 {
                     action.Item1.Execute();
-                    undoList.Insert(0, action.Item2);
-                    return undoList;
+                    return count + 1;
                 });
 
             }
             catch
             {
+                var undoCommands = _actions
+                .Take(executedCount)
+                .Select(a => a.Item2)
+                .Reverse()
+                .ToList();
+
                 new MacroCommand(undoCommands).Execute();
                 throw;
             }

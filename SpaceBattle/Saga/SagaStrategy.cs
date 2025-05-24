@@ -18,7 +18,7 @@ namespace SpaceBattle
             {
                 var cmdPairs = group.Select(name =>
                 {
-                    var doCmd = IoC.Resolve<ICommand>(name, obj, 3);
+                    var doCmd = IoC.Resolve<ICommand>(name, obj);
                     var undoCmd = IoC.Resolve<ICommand>($"Undo.{name}", obj);
                     return Tuple.Create(doCmd, undoCmd);
                 }).ToList();

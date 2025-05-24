@@ -15,32 +15,23 @@ namespace SpaceBattle
 
         public void Execute()
         {
-            var undoStack = new Stack<ICommand>();
-
-            foreach (var (doCmd, undoCmd) in _actions)
+            var undoCommands = new List<ICommand>();
+            try
             {
-                try
+                undoCommands = _actions.Aggregate(new List<ICommand>(), (undoList, action) =>
                 {
-                    doCmd.Execute();
-                    undoStack.Push(undoCmd);
-                }
-                catch
-                {
-                    foreach (var undo in undoStack)
-                    {
-                        try
-                        {
-                            undo.Execute();
-                        }
-                        catch
-                        {
-                            
-                        }
-                    }
+                    action.Item1.Execute();
+                    undoList.Insert(0, action.Item2);
+                    return undoList;
+                });
 
-                    throw;
-                }
             }
+            catch
+            {
+                new MacroCommand(undoCommands).Execute();
+                throw;
+            }
+
         }
     }
 }

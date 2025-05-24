@@ -2,6 +2,7 @@ using Hwdtech;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text.RegularExpressions;
 
 namespace SpaceBattle
 {
@@ -9,36 +10,24 @@ namespace SpaceBattle
     {
         public object ExecuteStrategy(params object[] args)
         {
-            var cmdNames = args.Take(args.Length - 3).Cast<string>().ToList();
-            var pivotName = (string)args[^3];
-            var target = (IUObject)args[^2];
-            var maxRetries = (int)args[^1];
+            var CmdNames = args[0] as List<List<string>> ?? throw new ArgumentNullException("CmdNames");
+            var obj = args[1] as IUObject ?? throw new ArgumentNullException("obj");
+            var maxRetries = (int)args[2];
 
-            var sagas = new List<ICommand>();
-            var currentActions = new List<Tuple<ICommand, ICommand>>();
-
-            foreach (var name in cmdNames)
+            var retrySagas = CmdNames.Select(group =>
             {
-                if (name == pivotName)
+                var cmdPairs = group.Select(name =>
                 {
-                    if (currentActions.Any())
-                        sagas.Add(new SagaCommand(currentActions));
+                    var doCmd = IoC.Resolve<ICommand>(name, obj, 3);
+                    var undoCmd = IoC.Resolve<ICommand>($"Undo.{name}", obj);
+                    return Tuple.Create(doCmd, undoCmd);
+                }).ToList();
 
-                    sagas.Add(IoC.Resolve<ICommand>(name, target, 3));
-                    currentActions = new List<Tuple<ICommand, ICommand>>();
-                }
-                else
-                {
-                    var cmd = IoC.Resolve<ICommand>(name, target, 3);
-                    var undo = IoC.Resolve<ICommand>($"Undo.{name}", target);
-                    currentActions.Add(Tuple.Create(cmd, undo));
-                }
-            }
+                var saga = new SagaCommand(cmdPairs);
+                return (ICommand)new RetryCommand(saga, maxRetries);
+            }).ToList();
 
-            if (currentActions.Any())
-                sagas.Add(new SagaCommand(currentActions));
-
-            return new RetryCommand(new MacroCommand(sagas), maxRetries);
+            return new MacroCommand(retrySagas);
         }
     }
 }

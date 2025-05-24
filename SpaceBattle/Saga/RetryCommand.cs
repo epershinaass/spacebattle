@@ -13,20 +13,26 @@ namespace SpaceBattle
 
         public void Execute()
         {
-            for (int attempt = 0; attempt <= _maxRetries; attempt++)
+            ExecuteWithRetry(_inner, 0);
+        }
+
+        private void ExecuteWithRetry(ICommand cmd, int currentAttempt)
+        {
+            try
             {
-                try
+                cmd.Execute();
+            }
+            catch
+            {
+                if (currentAttempt < _maxRetries)
                 {
-                    _inner.Execute();
-                    return; 
+                    ExecuteWithRetry(cmd, currentAttempt + 1);
                 }
-                catch when (attempt < _maxRetries)
+                else
                 {
-                    
+                    throw;
                 }
             }
-
-            throw new Exception($"Command failed after {_maxRetries + 1} attempts.");
         }
     }
 }

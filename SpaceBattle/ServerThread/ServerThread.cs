@@ -10,7 +10,8 @@ public class ServerThread
     Action finishingStrategy;
     public ServerThread(IReceiver gamesQueue, IReceiver messagesQueue)
     {
-        this.queue = queue;
+        this.gamesQueue = gamesQueue;
+        this.messagesQueue = messagesQueue;
         strategy = () =>
         {
             handleCommand();
@@ -35,7 +36,8 @@ public class ServerThread
     }
     internal void handleCommand()
     {
-        queue.Receive().Execute();
+        if (!gamesQueue.isEmpty()) gamesQueue.Receive().Execute();
+        if (!messagesQueue.isEmpty()) messagesQueue.Receive().Execute();
     }
     internal void updateBehaviour(Action newBehaviour)
     {

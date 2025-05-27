@@ -58,6 +58,54 @@ namespace SpaceBattle.Lib.Test
         }
 
         [Fact]
+        public void SagaFailAndRollbackTest()
+        {
+            var obj = new TestObject(new Dictionary<string, object>());
+            obj.SetProperty("Position", new Vector(12, 5));
+            obj.SetProperty("Velocity", new Vector(-7, 3));
+            obj.SetProperty("fuelLevel", 100f);
+            obj.SetProperty("fuelConsumption", 1f);
+
+            var mockMovable = new Mock<IMovable>();
+            mockMovable.SetupGet(m => m.Position).Throws<Exception>();
+            mockMovable.SetupGet(m => m.Velocity).Returns((Vector)obj.GetProperty("Velocity"));
+
+            var mockFuel = new Mock<IFuelChangable>();
+            mockFuel.SetupGet(f => f.fuelLevel).Returns((float)obj.GetProperty("fuelLevel"));
+            mockFuel.SetupGet(f => f.fuelConsumption).Returns((float)obj.GetProperty("fuelConsumption"));
+
+            bool undoMoveCalled = false;
+            bool undoFuelCalled = false;
+
+            IoC.Resolve<Hwdtech.ICommand>("IoC.Register", "MoveCommand", (object[] args) => new MoveCommand(mockMovable.Object)).Execute();
+            IoC.Resolve<Hwdtech.ICommand>("IoC.Register", "WasteFuelCommand", (object[] args) => new WasteFuelCommand(mockFuel.Object)).Execute();
+
+            IoC.Resolve<Hwdtech.ICommand>("IoC.Register", "Undo.MoveCommand", (object[] args) => new ActionCommand(() =>
+            {
+                undoMoveCalled = true;
+            })).Execute();
+
+            IoC.Resolve<Hwdtech.ICommand>("IoC.Register", "Undo.WasteFuelCommand", (object[] args) => new ActionCommand(() =>
+            {
+                undoFuelCalled = true;
+            })).Execute();
+
+            var commandsList = new List<List<string>> { new List<string> { "MoveCommand", "WasteFuelCommand" } };
+            var saga = (ICommand)new CreateSaga().ExecuteStrategy(commandsList, obj, 0);
+
+            Assert.Throws<Exception>(() => saga.Execute());
+
+            Assert.False(undoFuelCalled);
+            Assert.False(undoMoveCalled);
+
+            mockMovable.VerifyGet(m => m.Position, Times.Once);
+            mockMovable.VerifyGet(m => m.Velocity, Times.Never);
+
+            mockFuel.VerifyGet(f => f.fuelLevel, Times.Never);
+            mockFuel.VerifyGet(f => f.fuelConsumption, Times.Never);
+        }
+
+        [Fact]
         public void TwoSagasSecondFailsTest()
         {
             var obj = new TestObject(new Dictionary<string, object>());
@@ -86,7 +134,6 @@ namespace SpaceBattle.Lib.Test
                 mockFuel1.Object.fuelLevel += mockFuel1.Object.fuelConsumption;
             })).Execute();
 
-            // 2) Вторая сага: Move падает на первой попытке, Waste только во второй итерации
             var mockMovable2 = new Mock<IMovable>();
             int move2Calls = 0;
             mockMovable2.SetupGet(m => m.Position).Returns(() =>
@@ -123,81 +170,18 @@ namespace SpaceBattle.Lib.Test
 
             saga.Execute();
 
-            // — первая сага прошла без отката, команды отработали ровно по одному разу:
             mockMovable1.VerifyGet(m => m.Position, Times.Once);
             mockMovable1.VerifyGet(m => m.Velocity, Times.Once);
             mockFuel1.VerifyGet(f => f.fuelLevel, Times.Once);
             mockFuel1.VerifyGet(f => f.fuelConsumption, Times.Once);
             mockFuel1.VerifySet(f => f.fuelLevel = 99f, Times.Once);
 
-            // — вторая сага: Move попытался дважды (первая упала, вторая успешна), Velocity один раз, Waste только во второй попытке
             mockMovable2.VerifyGet(m => m.Position, Times.Exactly(2));
             mockMovable2.VerifyGet(m => m.Velocity, Times.Once);
             mockFuel2.VerifyGet(f => f.fuelLevel, Times.Once);
             mockFuel2.VerifyGet(f => f.fuelConsumption, Times.Once);
             mockFuel2.VerifySet(f => f.fuelLevel = It.IsAny<float>(), Times.AtLeastOnce);
         }
-
-        [Fact]
-        public void SagaCommandWithRetry()
-        {
-            var obj = new TestObject(new Dictionary<string, object>());
-            obj.SetProperty("Position", new Vector(12, 5));
-            obj.SetProperty("Velocity", new Vector(-7, 3));
-            obj.SetProperty("fuelLevel", 100f);
-            obj.SetProperty("fuelConsumption", 1f);
-
-            var mockMovable = new Mock<IMovable>();
-            var callCount = 0;
-
-            mockMovable.SetupGet(m => m.Position).Returns(() =>
-            {
-                if (callCount == 0)
-                {
-                    callCount++;
-                    throw new Exception("Initial failure");
-                }
-                return (Vector)obj.GetProperty("Position");
-            });
-
-            mockMovable.SetupGet(m => m.Velocity).Returns((Vector)obj.GetProperty("Velocity"));
-
-            var mockFuel = new Mock<IFuelChangable>();
-
-            mockFuel.SetupGet(f => f.fuelLevel).Returns((float)obj.GetProperty("fuelLevel"));
-            mockFuel.SetupGet(f => f.fuelConsumption).Returns((float)obj.GetProperty("fuelConsumption"));
-            mockFuel.SetupSet(f => f.fuelLevel = It.IsAny<float>()).Verifiable();
-
-            IoC.Resolve<Hwdtech.ICommand>("IoC.Register", "MoveCommand", (object[] args) =>
-                new MoveCommand(mockMovable.Object)).Execute();
-
-            IoC.Resolve<Hwdtech.ICommand>("IoC.Register", "WasteFuelCommand", (object[] args) =>
-                new WasteFuelCommand(mockFuel.Object)).Execute();
-
-            IoC.Resolve<Hwdtech.ICommand>("IoC.Register", "Undo.MoveCommand", (object[] args) =>
-                new ActionCommand(() =>
-                {
-                    obj.SetProperty("Position", ((Vector)obj.GetProperty("Position")) - ((Vector)obj.GetProperty("Velocity")));
-                })).Execute();
-
-            IoC.Resolve<Hwdtech.ICommand>("IoC.Register", "Undo.WasteFuelCommand", (object[] args) =>
-                new ActionCommand(() =>
-                {
-                    mockFuel.Object.fuelLevel += mockFuel.Object.fuelConsumption;
-                })).Execute();
-
-            var commandsList = new List<List<string>> { new List<string> { "MoveCommand", "WasteFuelCommand" } };
-            var sagaWithRetry = (ICommand)new CreateSaga().ExecuteStrategy(commandsList, obj, 1); // Retry 1 раз
-
-            sagaWithRetry.Execute();
-
-            // Ожидаем 2 вызова Position: первый падает, второй - нет
-            mockMovable.VerifyGet(m => m.Position, Times.Exactly(2));
-
-            // после первого обвала WasteFuelCommand не исполнялся, но во второй итерации должен
-            mockFuel.VerifyGet(f => f.fuelLevel, Times.AtLeastOnce);
-            mockFuel.VerifyGet(f => f.fuelConsumption, Times.AtLeastOnce);
-            mockFuel.VerifySet(f => f.fuelLevel = It.IsAny<float>(), Times.AtLeastOnce);
-        }
     }
 }
+
